@@ -25,8 +25,8 @@ func NewDB() *gorm.DB {
 	// 	}
 	// }
 
-	//ローカルの場合
-	// err := godotenv.Load(fmt.Sprintf(".env"))
+	//ローカルの場合は以下のコメントアウトを外す
+	// err := godotenv.Load(fmt.Sprintf(".env.dev"))
 	// if err != nil {
 	// 	log.Fatalln(err)
 	// }
