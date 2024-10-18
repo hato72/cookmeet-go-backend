@@ -6,7 +6,7 @@ WORKDIR /app/
 
 COPY backend/go.sum . 
 COPY backend/go.mod .
-COPY backend/.env.dev .
+
 
 # RUN apk upgrade --update && apk --no-cache add git gcc musl-dev
 
