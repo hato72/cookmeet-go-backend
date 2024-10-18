@@ -22,9 +22,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       TZ: Asia/Tokyo
     ports:
-      - 5434:5432
-    # env_file:
-    #   - ./backend/.env.dev
+      - 6545:6543
+    env_file:
+      - .env
     networks:
       - lesson
 

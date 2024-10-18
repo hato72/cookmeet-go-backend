@@ -19,11 +19,14 @@ func NewDB() *gorm.DB {
 	// 		log.Fatalln(err)
 	// 	}
 	// }
-	//if os.Getenv("GO_ENV") == "dev" {
-	//err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("GO_ENV")))
-
+	// if os.Getenv("GO_ENV") == "dev" {
+	// 	err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("GO_ENV")))
+	// 	if err != nil {
+	// 		log.Fatalln(err)
+	// 	}
+	// }
 	//ローカルの場合
-	err := godotenv.Load(fmt.Sprintf(".env.dev"))
+	err := godotenv.Load(fmt.Sprintf(".env"))
 	if err != nil {
 		log.Fatalln(err)
 	}
