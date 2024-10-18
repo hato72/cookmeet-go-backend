@@ -6,6 +6,7 @@ WORKDIR /app/
 
 COPY backend/go.sum . 
 COPY backend/go.mod .
+COPY backend/.env.dev .
 
 # RUN apk upgrade --update && apk --no-cache add git gcc musl-dev
 
@@ -13,7 +14,7 @@ COPY ./backend .
 
 RUN go build -tags netgo -ldflags '-s -w' -o app
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD ["go", "run", "main.go"]
 
@@ -33,4 +34,5 @@ CMD ["go", "run", "main.go"]
 # EXPOSE 8080
 
 # CMD ["go","run","./src/main.go"]
+
 

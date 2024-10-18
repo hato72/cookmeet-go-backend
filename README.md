@@ -18,16 +18,15 @@ https://free-casquette-dee.notion.site/d558148d80f742a4ac77c0bf76b4a2c9?pvs=4
 ```sh
 .env.dev:
 
-PORT=8080
+PORT=8081
 POSTGRES_USER=
 POSTGRES_PW=
 POSTGRES_DB=
-POSTGRES_PORT=5432
-POSTGRES_HOST=db
-SECRET=
+POSTGRES_PORT=
+POSTGRES_HOST=
 GO_ENV=dev
-API_DOMAIN=localhost
-FE_URL=http://localhost:3000
+SECRET=<supabaseのJWT　Secretキー>
+FE_URL=https://localhost:3000
 ```
 
 .env.devをbackendディレクトリ直下に配置した後に以下を実行
@@ -57,7 +56,7 @@ dbイメージ　postgres latest
 バックエンドイメージ　hackathon-backend latest
 
 Docker Composeで作ったコンテナ、イメージ、ボリューム、ネットワークを一括削除：
-docker-compose down -v --rmi local
+docker compose down -v --rmi local
 
 postmanで確認する際はrouter.goの26行目をコメントアウトして27行目のコメントアウトを外してから実行
 

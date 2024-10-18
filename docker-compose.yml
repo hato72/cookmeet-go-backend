@@ -1,12 +1,10 @@
-version: "3.8"
-
 services:
   backend:
     build:
       context: .
       dockerfile: ./backend/Dockerfile
     ports:
-      - 8080:8080
+      - 8081:8081
     volumes:
       - ./backend:/app
     # environment:
@@ -19,14 +17,14 @@ services:
   db:
     image: postgres:latest
     environment:
-      POSTGRES_USER: hato
-      POSTGRES_PASSWORD: hato72
-      POSTGRES_DB: hato
+      POSTGRES_PASSWORD: ${POSTGRES_PW}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
       TZ: Asia/Tokyo
     ports:
       - 5434:5432
     env_file:
-      - .env
+      - ./backend/.env.dev
     networks:
       - lesson
 

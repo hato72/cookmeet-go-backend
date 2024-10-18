@@ -1,5 +1,6 @@
 .env
 backend/.env.dev
+backend/.env.dev2
 backend/public/
 
 backend/src/migrate/
