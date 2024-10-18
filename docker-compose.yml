@@ -23,8 +23,8 @@ services:
       TZ: Asia/Tokyo
     ports:
       - 5434:5432
-    env_file:
-      - ./backend/.env.dev
+    # env_file:
+    #   - ./backend/.env.dev
     networks:
       - lesson
 
