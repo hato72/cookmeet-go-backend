@@ -141,7 +141,7 @@ func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *multipart.
 
 		img_url := "cuisine_icons/" + hashValue + ext
 
-		dst, err := os.Create("public/cuisine_images/" + img_url)
+		dst, err := os.Create("./cuisine_images/" + img_url)
 		if err != nil {
 			return model.CuisineResponse{}, err
 		}
@@ -205,7 +205,7 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 
 		img_url := "cuisine_icons/" + hashValue + ext
 
-		dst, err := os.Create("public/cuisine_images/" + img_url)
+		dst, err := os.Create("./cuisine_images/" + img_url)
 		if err != nil {
 			return model.CuisineResponse{}, err
 		}

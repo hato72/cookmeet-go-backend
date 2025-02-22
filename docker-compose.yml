@@ -1,32 +1,59 @@
+version: '3.8'
 services:
+  db:
+    image: postgres:latest
+    container_name: db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: hato
+      POSTGRES_PASSWORD: hato72
+      POSTGRES_DB: hato
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+  test-db:
+    image: postgres:latest
+    container_name: test-db
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: hato
+      POSTGRES_PASSWORD: hato72
+      POSTGRES_DB: hato_test
+    networks:
+      - backend-network
+
   backend:
     build:
       context: .
-      dockerfile: ./backend/Dockerfile
+      dockerfile: backend/Dockerfile
+    container_name: backend
     ports:
       - 8081:8081
-    volumes:
-      - ./backend:/app
-    # environment:
-    #   POSTGRES_USER: hato
-    #   POSTGRES_PASSWORD: hato72
-    #   POSTGRES_DB: hato
-    networks:
-      - lesson
-  
-  db:
-    image: postgres:latest
+    depends_on:
+      - db
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PW}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_DB: ${POSTGRES_DB}
-      TZ: Asia/Tokyo
-    ports:
-      - 6545:6543
-    env_file:
-      - .env
+      - PORT=8081
+      - POSTGRES_USER=hato
+      - POSTGRES_PW=hato72
+      - POSTGRES_DB=hato
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=db
+      - GO_ENV=dev
+      - SECRET=uu5pveql
+      - API_DOMAIN=localhost
+      - FE_URL=http://localhost:3000
+    volumes:
+      - ./backend:/app/backend
     networks:
-      - lesson
+      - backend-network
+
+volumes:
+  postgres_data:
 
 networks:
-  lesson:
+  backend-network:
+    driver: bridge

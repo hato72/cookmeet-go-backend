@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -26,10 +27,11 @@ func NewDB() *gorm.DB {
 	// }
 
 	//ローカルの場合は以下のコメントアウトを外す
-	// err := godotenv.Load(fmt.Sprintf(".env.dev"))
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
+	err := godotenv.Load(fmt.Sprintf("C:/Users/hatot/.vscode/go_backend_hackathon/backend/.env.dev"))
+	//err := godotenv.Load(".env.dev")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", os.Getenv("POSTGRES_USER"),
 		os.Getenv("POSTGRES_PW"), os.Getenv("POSTGRES_HOST"),
