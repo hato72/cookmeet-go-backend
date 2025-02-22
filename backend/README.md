@@ -72,6 +72,10 @@ go test -v -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out
 ```
 
+## テストを避ける
+コミット(プッシュ)時のメッセージに [Notest] を含める
+
+
 ## CI/CD
 
 GitHub Actionsを使用して以下の自動化を実施:
@@ -113,11 +117,3 @@ backend/
 - `POST /cuisines` - 料理追加
 - `PUT /cuisines/:id` - 料理更新
 - `DELETE /cuisines/:id` - 料理削除
-
-## 貢献
-
-1. Forkする
-2. フィーチャーブランチを作成する (`git checkout -b feature/amazing-feature`)
-3. 変更をコミットする (`git commit -m 'Add some amazing feature'`)
-4. ブランチにプッシュする (`git push origin feature/amazing-feature`)
-5. プルリクエストを作成する
