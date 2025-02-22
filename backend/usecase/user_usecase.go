@@ -110,7 +110,7 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 
 		iconUrl := "icons/" + hashValue + ext
 
-		dst, err := os.Create("public/user_images/" + iconUrl)
+		dst, err := os.Create("./user_images/" + iconUrl)
 		if err != nil {
 			return model.UserResponse{}, err
 		}

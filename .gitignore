@@ -1,4 +1,5 @@
 .env
+.env.backup
 backend/.env.dev
 backend/.env.dev2
 backend/public/
