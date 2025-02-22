@@ -13,7 +13,7 @@ https://cookmeet-backend.onrender.com
 https://free-casquette-dee.notion.site/d558148d80f742a4ac77c0bf76b4a2c9?pvs=4
 
 
-## 実行方法(テスト環境)
+## 実行方法(ローカル環境)
 
 ```sh
 .env.dev:
@@ -49,6 +49,9 @@ docker compose build
 
 docker compose up
 ```
+## テストなしで実行
+コミット時に[Notest]を含める
+
 
 ## メモ
 dbイメージ　postgres latest 
