@@ -28,9 +28,12 @@ func NewDB() *gorm.DB {
 
 	//ローカルの場合は以下のコメントアウトを外す
 	//err := godotenv.Load(fmt.Sprintf("C:/Users/hatot/.vscode/go_backend_hackathon/backend/.env.dev"))
-	err := godotenv.Load(".env.dev")
-	if err != nil {
-		log.Fatalln(err)
+	if _, err := os.Stat(".env.dev"); err == nil {
+		if err := godotenv.Load(".env.dev"); err != nil {
+			log.Fatalln(err)
+		}
+	} else {
+		log.Println(".env.dev not found, skip loading local env file")
 	}
 
 	url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", os.Getenv("POSTGRES_USER"),
