@@ -21,6 +21,8 @@ type mockCuisineUsecase struct {
 	mock.Mock
 }
 
+// 以下のメソッドは、mock.Mockを埋め込んでいるため、自動的にモック化される
+// モック化したいメソッドをオーバーライド
 func (m *mockCuisineUsecase) GetAllCuisines(userId uint) ([]model.CuisineResponse, error) {
 	args := m.Called(userId)
 	return args.Get(0).([]model.CuisineResponse), args.Error(1)
@@ -46,6 +48,7 @@ func (m *mockCuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipa
 	return args.Get(0).(model.CuisineResponse), args.Error(1)
 }
 
+// Echo のコンテキストとモックユースケース、そしてテスト対象の Cuisine Controller を初期化
 func setupCuisineTest(t *testing.T) (*echo.Echo, *mockCuisineUsecase, ICuisineController) {
 	e := echo.New()
 	mockUsecase := new(mockCuisineUsecase)
@@ -53,6 +56,7 @@ func setupCuisineTest(t *testing.T) (*echo.Echo, *mockCuisineUsecase, ICuisineCo
 	return e, mockUsecase, controller
 }
 
+// JWT トークンを生成
 func createJWTToken(userId float64) *jwt.Token {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
@@ -110,11 +114,11 @@ func TestGetAllCuisines(t *testing.T) {
 
 			mockUsecase.On("GetAllCuisines", uint(tc.userId)).Return(tc.mockResponse, tc.mockError)
 
-			err := controller.GetAllCuisines(c)
+			err := controller.GetAllCuisines(c) // テスト対象のメソッドを実行
 			assert.NoError(t, err)
-			assert.Equal(t, tc.expectStatus, rec.Code)
+			assert.Equal(t, tc.expectStatus, rec.Code) // レスポンスのステータスコードが期待通りか確認
 
-			if tc.expectStatus == http.StatusOK {
+			if tc.expectStatus == http.StatusOK { //モックが期待通りの結果を返す場合
 				var response []model.CuisineResponse
 				json.Unmarshal(rec.Body.Bytes(), &response)
 				assert.Equal(t, len(tc.mockResponse), len(response))
@@ -257,7 +261,7 @@ func TestAddCuisine(t *testing.T) {
 
 			req := httptest.NewRequest(http.MethodPost, "/cuisines", body)
 			req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-			rec := httptest.NewRecorder()
+			rec := httptest.NewRecorder() //リクエストボディを作成
 			c := e.NewContext(req, rec)
 			c.Set("user", createJWTToken(tc.userId))
 

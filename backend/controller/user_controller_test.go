@@ -88,7 +88,7 @@ func TestSignUp(t *testing.T) {
 				mockUsecase.On("SignUp", user).Return(tc.mockResponse, tc.mockError)
 			}
 
-			// ハンドラを実行
+			// テスト対象の関数を実行
 			err := controller.SignUp(c)
 
 			// アサーション
