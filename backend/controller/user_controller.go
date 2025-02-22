@@ -50,6 +50,12 @@ func (uc *UserController) Login(c echo.Context) error {
 	}
 	tokenString, err := uc.uu.Login(user)
 	if err != nil {
+		// ユースケース側で返したエラーに応じたHTTPステータスを設定
+		if err == usecase.ErrUserNotFound {
+			return c.JSON(http.StatusNotFound, err.Error()) //ユーザーが見つからない場合
+		} else if err == usecase.ErrInvalidPassword {
+			return c.JSON(http.StatusUnauthorized, err.Error()) //パスワードが間違っている場合
+		}
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	cookie := new(http.Cookie)

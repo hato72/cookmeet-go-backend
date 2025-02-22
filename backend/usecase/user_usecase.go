@@ -11,6 +11,7 @@ import (
 	"backend/validator"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"io"
 	"mime/multipart"
 	"os"
@@ -19,6 +20,12 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+)
+
+// エラー定義を追加
+var (
+	ErrUserNotFound    = errors.New("user not found")
+	ErrInvalidPassword = errors.New("invalid password")
 )
 
 type IUserUsecase interface {
@@ -63,11 +70,11 @@ func (uu *userUsecase) Login(user model.User) (string, error) {
 	}
 	storedUser := model.User{} //空のユーザーオブジェクト
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil {
-		return "", err
+		return "", ErrUserNotFound
 	}
 	err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password)) //パスワードの検証
 	if err != nil {
-		return "", err
+		return "", ErrInvalidPassword
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": storedUser.ID,
