@@ -27,8 +27,8 @@ func NewDB() *gorm.DB {
 	// }
 
 	//ローカルの場合は以下のコメントアウトを外す
-	err := godotenv.Load(fmt.Sprintf("C:/Users/hatot/.vscode/go_backend_hackathon/backend/.env.dev"))
-	//err := godotenv.Load(".env.dev")
+	//err := godotenv.Load(fmt.Sprintf("C:/Users/hatot/.vscode/go_backend_hackathon/backend/.env.dev"))
+	err := godotenv.Load(".env.dev")
 	if err != nil {
 		log.Fatalln(err)
 	}
