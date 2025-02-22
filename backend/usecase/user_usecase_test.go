@@ -3,6 +3,7 @@ package usecase
 import (
 	"backend/model"
 	"backend/validator"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -71,28 +72,87 @@ func TestLogin(t *testing.T) {
 	usecase := NewUserUsecase(mockRepo, validator)
 
 	// テストケース
-	password := "password123"
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
+	// password := "password123"
+	// hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
 
-	user := model.User{
-		Email:    "test@example.com",
-		Password: password,
-	}
+	// user := model.User{ //正しいケース
+	// 	Email:    "test@example.com",
+	// 	Password: password,
+	// }
 
-	// モックの振る舞いを設定
-	mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), user.Email).
-		Run(func(args mock.Arguments) {
-			arg := args.Get(0).(*model.User)
-			arg.ID = 1
-			arg.Email = user.Email
-			arg.Password = string(hashedPassword)
-		}).Return(nil)
+	// // モックの振る舞いを設定
+	// mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), user.Email).
+	// 	Run(func(args mock.Arguments) {
+	// 		arg := args.Get(0).(*model.User)
+	// 		arg.ID = 1
+	// 		arg.Email = user.Email
+	// 		arg.Password = string(hashedPassword)
+	// 	}).Return(nil)
 
-	// テスト実行
-	tokenString, err := usecase.Login(user)
+	// // テスト実行
+	// tokenString, err := usecase.Login(user)
 
-	// アサーション
-	assert.NoError(t, err)
-	assert.NotEmpty(t, tokenString)
+	// // アサーション
+	// assert.NoError(t, err)
+	// assert.NotEmpty(t, tokenString)
+
+	// 正しいケース
+	t.Run("valid login", func(t *testing.T) {
+		user := model.User{
+			Email:    "test@example.com",
+			Password: "password123",
+		}
+		// 正しいパスワードのハッシュを生成
+		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), 10)
+		// モックの振る舞いを設定
+		mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), user.Email).
+			Run(func(args mock.Arguments) {
+				arg := args.Get(0).(*model.User)
+				arg.ID = 1
+				arg.Email = user.Email
+				arg.Password = string(hashedPassword)
+			}).Return(nil).Once()
+
+		tokenString, err := usecase.Login(user)
+		assert.NoError(t, err, "unexpected error in valid login: %v", err)
+		assert.NotEmpty(t, tokenString, "token must not be empty")
+	})
+
+	// 存在しないユーザーの場合
+	t.Run("user not found", func(t *testing.T) {
+		noexistuser := model.User{
+			Email:    "noexist@example.com",
+			Password: "password123",
+		}
+		// ユーザーが見つからないエラーを返す
+		mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), noexistuser.Email).
+			Return(errors.New("user not found")).Once()
+
+		_, err := usecase.Login(noexistuser)
+		assert.Error(t, err, "expected error for non-existent user")
+		assert.Truef(t, errors.Is(err, ErrUserNotFound), "expected ErrUserNotFound, but got: %v", err)
+	})
+
+	// パスワードが間違っている場合
+	t.Run("invalid password", func(t *testing.T) {
+		misspassuser := model.User{
+			Email:    "noexist@example.com",
+			Password: "password12345",
+		}
+		// 正しいパスワードのハッシュを保持したユーザー情報を返す
+		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), 10)
+		mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), misspassuser.Email).
+			Run(func(args mock.Arguments) {
+				arg := args.Get(0).(*model.User)
+				arg.ID = 2
+				arg.Email = misspassuser.Email
+				arg.Password = string(hashedPassword)
+			}).Return(nil).Once()
+
+		_, err := usecase.Login(misspassuser)
+		assert.Error(t, err, "expected error for invalid password")
+		assert.Truef(t, errors.Is(err, ErrInvalidPassword), "expected ErrInvalidPassword, but got: %v", err)
+	})
+
 	mockRepo.AssertExpectations(t)
 }

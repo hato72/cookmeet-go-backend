@@ -12,6 +12,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
@@ -74,7 +75,8 @@ func (uu *userUsecase) Login(user model.User) (string, error) {
 	}
 	err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password)) //パスワードの検証
 	if err != nil {
-		return "", ErrInvalidPassword
+		// エラーをラップすることで、errors.Isでの判定が成功するようにする
+		return "", fmt.Errorf("password mismatch: %w", ErrInvalidPassword)
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": storedUser.ID,

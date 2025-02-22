@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"backend/model"
+	"backend/usecase"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -131,8 +132,15 @@ func TestLogin(t *testing.T) {
 			name:         "無効な認証情報",
 			inputJSON:    `{"email":"test@example.com","password":"wrongpassword"}`,
 			mockToken:    "",
-			mockError:    assert.AnError,
-			expectStatus: http.StatusInternalServerError,
+			mockError:    usecase.ErrUserNotFound,
+			expectStatus: http.StatusNotFound,
+		},
+		{
+			name:         "パスワードが間違っている",
+			inputJSON:    `{"email":"test@example.com","password":"wrongpassword"}`,
+			mockToken:    "",
+			mockError:    usecase.ErrInvalidPassword, // usecase で定義しているパスワード不一致エラー
+			expectStatus: http.StatusUnauthorized,
 		},
 	}
 
