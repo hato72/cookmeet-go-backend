@@ -17,6 +17,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -25,8 +26,9 @@ import (
 
 // エラー定義を追加
 var (
-	ErrUserNotFound    = errors.New("user not found")
-	ErrInvalidPassword = errors.New("invalid password")
+	ErrUserNotFound      = errors.New("user not found")
+	ErrInvalidPassword   = errors.New("invalid password")
+	ErrUserAlreadyExists = errors.New("user already exists")
 )
 
 type IUserUsecase interface {
@@ -48,12 +50,25 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 	if err := uu.uv.UserValidate(user); err != nil {
 		return model.UserResponse{}, err
 	}
+
+	// まず既存ユーザーがいないか確認
+	existingUser := model.User{}
+	if err := uu.ur.GetUserByEmail(&existingUser, user.Email); err == nil {
+		// エラーがない場合はユーザーが見つかっている（既に存在する）
+		return model.UserResponse{}, ErrUserAlreadyExists
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		return model.UserResponse{}, err
 	}
 	newUser := model.User{Name: user.Name, Email: user.Email, Password: string(hash)}
 	if err := uu.ur.CreateUser(&newUser); err != nil {
+		// データベースエラーの場合も、重複に関するエラーかどうかをチェック
+		if strings.Contains(strings.ToLower(err.Error()), "duplicate") ||
+			strings.Contains(strings.ToLower(err.Error()), "unique violation") {
+			return model.UserResponse{}, ErrUserAlreadyExists
+		}
 		return model.UserResponse{}, err
 	}
 	resUser := model.UserResponse{

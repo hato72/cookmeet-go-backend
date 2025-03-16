@@ -1,13 +1,9 @@
 package controller
 
-//user_usecaseで実装したユーザー登録、ログイン、ログアウト、ユーザー情報更新メソッドを呼び出す
-//このプログラムの処理が一番外側に位置し、routerでAPIとして呼び出される
-//routerで受け取ったボディーの入力値をusecaseで使える形に変換する
-
 import (
 	"backend/model"
 	"backend/usecase"
-	"errors" // 追加
+	"errors"
 	"net/http"
 	"os"
 	"time"
@@ -32,16 +28,21 @@ func NewUserController(uu usecase.IUserUsecase) IUserController {
 	return &UserController{uu}
 }
 
-func (uc *UserController) SignUp(c echo.Context) error { //クライアントから受け取るリクエストボディの値を構造体の値に変換
+func (uc *UserController) SignUp(c echo.Context) error {
 	user := model.User{}
-	if err := c.Bind(&user); err != nil { //リクエストをユーザーオブジェクトが指し示す先の値に格納
+	if err := c.Bind(&user); err != nil { // リクエストボディをバインド
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	userRes, err := uc.uu.SignUp(user)
 	if err != nil {
+		// エラー処理を統一した形式に修正
+		// ユーザーが既に存在する場合は409 Conflictを返す
+		if errors.Is(err, usecase.ErrUserAlreadyExists) {
+			return c.JSON(http.StatusConflict, err.Error())
+		}
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusCreated, userRes) //Createdのステータス、新しく作成したユーザーを返す
+	return c.JSON(http.StatusCreated, userRes) // Createdのステータス、新規作成したユーザーを返す
 }
 
 func (uc *UserController) Login(c echo.Context) error {
