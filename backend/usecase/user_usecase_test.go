@@ -39,30 +39,97 @@ func (m *MockUserRepository) UpdateUser(user *model.User) error {
 	return args.Error(0)
 }
 
+type MockUserValidator struct {
+	mock.Mock
+}
+
+func (m *MockUserValidator) UserValidate(user model.User) error {
+	args := m.Called(user)
+	return args.Error(0)
+}
+
 func TestSignUp(t *testing.T) {
-	// モックの準備
-	mockRepo := new(MockUserRepository)
-	validator := validator.NewUserValidator()
-	usecase := NewUserUsecase(mockRepo, validator)
+	// テストケース1: 正常なサインアップ（ユーザーが存在しない）
+	t.Run("success", func(t *testing.T) {
+		mockRepo := new(MockUserRepository)
+		mockValidator := new(MockUserValidator)
 
-	// テストケース
-	user := model.User{
-		Name:     "Test User",
-		Email:    "test@example.com",
-		Password: "password123",
-	}
+		user := model.User{
+			Name:     "Test User",
+			Email:    "test@example.com",
+			Password: "password",
+		}
 
-	// モックの振る舞いを設定
-	mockRepo.On("CreateUser", mock.AnythingOfType("*model.User")).Return(nil)
+		// バリデーションが成功することを設定
+		mockValidator.On("UserValidate", mock.AnythingOfType("model.User")).Return(nil)
 
-	// テスト実行
-	response, err := usecase.SignUp(user)
+		// GetUserByEmailがユーザーが見つからないエラーを返すように設定（正常：既存ユーザーがいない）
+		mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), "test@example.com").Return(errors.New("user not found"))
 
-	// アサーション
-	assert.NoError(t, err)
-	assert.Equal(t, user.Name, response.Name)
-	assert.Equal(t, user.Email, response.Email)
-	mockRepo.AssertExpectations(t)
+		// CreateUserが成功することを設定
+		mockRepo.On("CreateUser", mock.AnythingOfType("*model.User")).Return(nil).Run(func(args mock.Arguments) {
+			userArg := args.Get(0).(*model.User)
+			userArg.ID = 1 // IDをセット
+		})
+
+		usecase := NewUserUsecase(mockRepo, mockValidator)
+		res, err := usecase.SignUp(user)
+
+		assert.NoError(t, err)
+		assert.Equal(t, uint(1), res.ID)
+		assert.Equal(t, user.Name, res.Name)
+		assert.Equal(t, user.Email, res.Email)
+		mockRepo.AssertExpectations(t)
+		mockValidator.AssertExpectations(t)
+	})
+
+	// テストケース2: ユーザーがすでに存在する場合（エラー）
+	t.Run("user already exists", func(t *testing.T) {
+		mockRepo := new(MockUserRepository)
+		mockValidator := new(MockUserValidator)
+
+		user := model.User{
+			Name:     "Test User",
+			Email:    "existing@example.com",
+			Password: "password",
+		}
+
+		// バリデーションが成功することを設定
+		mockValidator.On("UserValidate", mock.AnythingOfType("model.User")).Return(nil)
+
+		// GetUserByEmailがnilを返す（異常：ユーザーが既に存在する）
+		mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), "existing@example.com").Return(nil)
+
+		usecase := NewUserUsecase(mockRepo, mockValidator)
+		_, err := usecase.SignUp(user)
+
+		assert.Error(t, err)
+		assert.Equal(t, ErrUserAlreadyExists, err)
+		mockRepo.AssertExpectations(t)
+		mockValidator.AssertExpectations(t)
+	})
+
+	// テストケース3: バリデーションエラー
+	t.Run("validation error", func(t *testing.T) {
+		mockRepo := new(MockUserRepository)
+		mockValidator := new(MockUserValidator)
+
+		user := model.User{
+			Name:     "", // 名前が空
+			Email:    "invalid@example.com",
+			Password: "pw", // パスワードが短すぎる
+		}
+
+		validationErr := errors.New("validation error")
+		mockValidator.On("UserValidate", mock.AnythingOfType("model.User")).Return(validationErr)
+
+		usecase := NewUserUsecase(mockRepo, mockValidator)
+		_, err := usecase.SignUp(user)
+
+		assert.Error(t, err)
+		assert.Equal(t, validationErr, err)
+		mockValidator.AssertExpectations(t)
+	})
 }
 
 func TestLogin(t *testing.T) {
@@ -70,31 +137,6 @@ func TestLogin(t *testing.T) {
 	mockRepo := new(MockUserRepository)
 	validator := validator.NewUserValidator()
 	usecase := NewUserUsecase(mockRepo, validator)
-
-	// テストケース
-	// password := "password123"
-	// hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
-
-	// user := model.User{ //正しいケース
-	// 	Email:    "test@example.com",
-	// 	Password: password,
-	// }
-
-	// // モックの振る舞いを設定
-	// mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), user.Email).
-	// 	Run(func(args mock.Arguments) {
-	// 		arg := args.Get(0).(*model.User)
-	// 		arg.ID = 1
-	// 		arg.Email = user.Email
-	// 		arg.Password = string(hashedPassword)
-	// 	}).Return(nil)
-
-	// // テスト実行
-	// tokenString, err := usecase.Login(user)
-
-	// // アサーション
-	// assert.NoError(t, err)
-	// assert.NotEmpty(t, tokenString)
 
 	// 正しいケース
 	t.Run("valid login", func(t *testing.T) {
