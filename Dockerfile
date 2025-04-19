@@ -8,6 +8,7 @@ COPY ./backend .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -a -installsuffix cgo -o main .
 
 FROM alpine:latest
+WORKDIR /root/
 RUN apk --no-cache add ca-certificates tzdata && \
     rm -rf /var/cache/apk/*
 WORKDIR /root/
@@ -19,4 +20,4 @@ ENV GOGC=20
 ENV GOMAXPROCS=1
 
 EXPOSE 8081
-CMD ["go", "run", "main.go"]
+CMD ["./main"]
