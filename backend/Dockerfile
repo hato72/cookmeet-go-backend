@@ -15,7 +15,8 @@ RUN go build -tags netgo -ldflags '-s -w' -o app
 
 EXPOSE 8081
 
-CMD ["go", "run", "main.go"]
+#CMD ["go", "run", "main.go"]
+CMD ["./main"]
 
 
 
