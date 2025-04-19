@@ -18,5 +18,5 @@ ENV GOGC=20
 # 最大プロセス数を制限
 ENV GOMAXPROCS=1
 
-EXPOSE 8080
+EXPOSE 8081
 CMD ["go", "run", "main.go"]

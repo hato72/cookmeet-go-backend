@@ -59,7 +59,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8081"
 	}
 	if err := e.Start(":" + port); err != nil {
 		log.Panicf("error: %s", err)

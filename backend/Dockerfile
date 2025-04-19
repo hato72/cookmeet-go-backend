@@ -13,7 +13,7 @@ COPY ./backend .
 
 RUN go build -tags netgo -ldflags '-s -w' -o app
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD ["go", "run", "main.go"]
 
