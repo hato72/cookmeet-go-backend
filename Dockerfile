@@ -11,7 +11,6 @@ FROM alpine:latest
 WORKDIR /root/
 RUN apk --no-cache add ca-certificates tzdata && \
     rm -rf /var/cache/apk/*
-WORKDIR /root/
 COPY --from=builder /app/main .
 
 # GCのガベージコレクション設定を調整
