@@ -2,6 +2,7 @@
 .env.backup
 backend/.env.dev
 backend/.env.dev2
+backend/.env.prod
 backend/public/
 
 backend/src/migrate/
