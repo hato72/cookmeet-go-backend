@@ -13,8 +13,6 @@ RUN apk --no-cache add ca-certificates tzdata && \
 WORKDIR /root/
 COPY --from=builder /app/main .
 
-COPY --from=builder /app/cookmeet-ai-b1a34baf28a6.json .
-
 # GCのガベージコレクション設定を調整
 ENV GOGC=20
 # 最大プロセス数を制限
