@@ -4,15 +4,12 @@ WORKDIR /app/
 
 # ローカルの場合
 
-# COPY backend/go.sum . 
-# COPY backend/go.mod .
-COPY go.mod .
-COPY go.sum .
+COPY backend/go.sum . 
+COPY backend/go.mod .
 
 # RUN apk upgrade --update && apk --no-cache add git gcc musl-dev
 
-# COPY ./backend .
-COPY . .
+COPY ./backend .
 
 RUN go build -tags netgo -ldflags '-s -w' -o app
 
