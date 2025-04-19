@@ -7,6 +7,7 @@ type Cuisine struct {
 	Title     string    `json:"title" gorm:"not null"` //空の値を許可しない
 	IconUrl   *string   `json:"icon_url"`
 	URL       string    `json:"url"`
+	Comment   string    `json:"comment"` // コメント追加
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	User      User      `json:"user" gorm:"foreignKey:UserId; constraint:OnDelete:CASCADE"` //userを削除したときにuserに紐づいている料理も消去される
@@ -18,6 +19,7 @@ type CuisineResponse struct {
 	Title     string    `json:"title" gorm:"not null"` //空の値を許可しない
 	IconUrl   *string   `json:"icon_url"`
 	URL       string    `json:"url"`
+	Comment   string    `json:"comment"` // コメント追加
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	UserId    uint      `json:"user_id"`

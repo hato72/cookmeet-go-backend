@@ -22,7 +22,7 @@ type ICuisineUsecase interface {
 	//CreateCuisine(cuisine model.Cuisine) (model.CuisineResponse, error)
 	//UpdateCuisine(cuisine model.Cuisine, userId uint, cuisineId uint) (model.CuisineResponse, error)
 	DeleteCuisine(userId uint, cuisineId uint) error
-	AddCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string) (model.CuisineResponse, error)
+	AddCuisine(cuisine model.Cuisine, iconFile *string, url string, title string) (model.CuisineResponse, error)
 	SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, userId uint, cuisineId uint) (model.CuisineResponse, error)
 }
 
@@ -47,6 +47,7 @@ func (cu *cuisineUsecase) GetAllCuisines(userId uint) ([]model.CuisineResponse, 
 			Title:     v.Title,
 			IconUrl:   v.IconUrl,
 			URL:       v.URL,
+			Comment:   v.Comment,
 			CreatedAt: v.CreatedAt,
 			UpdatedAt: v.UpdatedAt,
 			UserId:    v.UserId,
@@ -66,6 +67,7 @@ func (cu *cuisineUsecase) GetCuisineById(userId uint, cuisineId uint) (model.Cui
 		Title:     cuisine.Title,
 		IconUrl:   cuisine.IconUrl,
 		URL:       cuisine.URL,
+		Comment:   cuisine.Comment,
 		CreatedAt: cuisine.CreatedAt,
 		UpdatedAt: cuisine.UpdatedAt,
 		UserId:    cuisine.UserId,
@@ -119,40 +121,9 @@ func (cu *cuisineUsecase) DeleteCuisine(userId uint, cuisineId uint) error {
 	return nil
 }
 
-func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string) (model.CuisineResponse, error) {
-
+func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *string, url string, title string) (model.CuisineResponse, error) {
 	if iconFile != nil {
-		src, err := iconFile.Open()
-		if err != nil {
-			return model.CuisineResponse{}, err
-		}
-		defer src.Close()
-
-		data, err := io.ReadAll(src)
-		if err != nil {
-			return model.CuisineResponse{}, err
-		}
-
-		hasher := sha256.New()
-		hasher.Write(data)
-		hashValue := hex.EncodeToString(hasher.Sum(nil))
-
-		ext := filepath.Ext(iconFile.Filename)
-
-		img_url := "cuisine_icons/" + hashValue + ext
-
-		dst, err := os.Create("./cuisine_images/" + img_url)
-		if err != nil {
-			return model.CuisineResponse{}, err
-		}
-
-		defer dst.Close()
-
-		if _, err := dst.Write(data); err != nil {
-			return model.CuisineResponse{}, nil
-		}
-
-		cuisine.IconUrl = &img_url
+		cuisine.IconUrl = iconFile
 	}
 
 	if url != "" {
@@ -174,6 +145,7 @@ func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *multipart.
 		Title:     cuisine.Title,
 		IconUrl:   cuisine.IconUrl,
 		URL:       cuisine.URL,
+		Comment:   cuisine.Comment, // コメントを追加
 		CreatedAt: cuisine.CreatedAt,
 		UpdatedAt: cuisine.UpdatedAt,
 		UserId:    cuisine.UserId,
@@ -232,6 +204,7 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 		Title:     title,
 		IconUrl:   cuisine.IconUrl,
 		URL:       url,
+		Comment:   cuisine.Comment,
 		CreatedAt: cuisine.CreatedAt,
 		UpdatedAt: cuisine.UpdatedAt,
 		User:      cuisine.User,
@@ -249,6 +222,7 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 		Title:     cuisine.Title,
 		IconUrl:   cuisine.IconUrl,
 		URL:       cuisine.URL,
+		Comment:   cuisine.Comment,
 		CreatedAt: cuisine.CreatedAt,
 		UpdatedAt: updatedCuisine.UpdatedAt,
 		UserId:    updatedCuisine.UserId,

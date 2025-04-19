@@ -10,6 +10,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[Notest]')"
     services:
       postgres:
         image: postgres:latest
@@ -31,7 +32,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.22'
+        go-version: '1.23'
 
     - name: Install dependencies
       run: |
@@ -72,6 +73,19 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+     # GCPの認証設定
+    # - name: Set up Cloud SDK
+    #   uses: google-github-actions/setup-gcloud@v1
+    #   with:
+    #     project_id: ${{ secrets.GCP_PROJECT_ID }}
+    #     service_account_key: ${{ secrets.GCP_SA_KEY }}
+    #     export_default_credentials: true
+
+    # # Dockerの認証設定
+    # - name: Authorize Docker push to Artifact Registry
+    #   run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
@@ -82,10 +96,21 @@ jobs:
 
     # ここにデプロイ先のサービスに応じたデプロイステップを追加
     # 例: Render, Heroku, GCP等へのデプロイ設定
-    - name: Deploy to Render 
-      uses: ttskch/render-deploy@v1.0.0
-      with:
-        api-key: ${{ secrets.RENDER_API_KEY }}
-        service-id: ${{ secrets.RENDER_SERVICE_ID }}
-        interval: 20 # optional
-        timeout: 300 # optional
+    # - name: Deploy to Render 
+    #   uses: ttskch/render-deploy@v1.0.0
+    #   with:
+    #     api-key: ${{ secrets.RENDER_API_KEY }}
+    #     service-id: ${{ secrets.RENDER_SERVICE_ID }}
+    #     interval: 20 # optional
+    #     timeout: 300 # optional
+
+    # Cloud Runへのデプロイ
+    # - name: Deploy to Cloud Run
+    #   run: |
+    #     gcloud run deploy cookmeet-backend \
+    #       --image asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cookmeet-images/backend:${{ github.sha }} \
+    #       --platform managed \
+    #       --region asia-northeast1 \
+    #       --allow-unauthenticated \
+    #       --set-env-vars="PORT=8081,POSTGRES_USER=${{ secrets.POSTGRES_USER }},POSTGRES_PW=${{ secrets.POSTGRES_PW }},POSTGRES_DB=${{ secrets.POSTGRES_DB }},POSTGRES_PORT=${{ secrets.POSTGRES_PORT }},POSTGRES_HOST=${{ secrets.POSTGRES_HOST }},GO_ENV=production,SECRET=${{ secrets.JWT_SECRET }},API_DOMAIN=${{ secrets.API_DOMAIN }},FE_URL=${{ secrets.FE_URL }}" \
+    #       --update-secrets="/app/secrets/cookmeet-ai-service-account.json=cookmeet-ai-service-account-json:latest"

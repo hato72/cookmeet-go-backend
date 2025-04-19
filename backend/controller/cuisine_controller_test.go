@@ -38,11 +38,13 @@ func (m *mockCuisineUsecase) DeleteCuisine(userId uint, cuisineId uint) error {
 	return args.Error(0)
 }
 
-func (m *mockCuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string) (model.CuisineResponse, error) {
-	args := m.Called(cuisine, iconFile, url, title)
+// AddCuisineメソッドのシグネチャを変更
+func (m *mockCuisineUsecase) AddCuisine(cuisine model.Cuisine, iconUrl *string, url string, title string) (model.CuisineResponse, error) {
+	args := m.Called(cuisine, iconUrl, url, title)
 	return args.Get(0).(model.CuisineResponse), args.Error(1)
 }
 
+// SetCuisineメソッドも修正が必要
 func (m *mockCuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, userId uint, cuisineId uint) (model.CuisineResponse, error) {
 	args := m.Called(cuisine, iconFile, url, title, userId, cuisineId)
 	return args.Get(0).(model.CuisineResponse), args.Error(1)
@@ -261,13 +263,14 @@ func TestAddCuisine(t *testing.T) {
 
 			req := httptest.NewRequest(http.MethodPost, "/cuisines", body)
 			req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
-			rec := httptest.NewRecorder() //リクエストボディを作成
+			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.Set("user", createJWTToken(tc.userId))
 
+			// iconUrlパラメータをnilに変更
 			mockUsecase.On("AddCuisine",
 				mock.AnythingOfType("model.Cuisine"),
-				(*multipart.FileHeader)(nil),
+				(*string)(nil), // FileHeaderではなくstringポインタに変更
 				tc.url,
 				tc.title,
 			).Return(tc.mockResponse, tc.mockError)

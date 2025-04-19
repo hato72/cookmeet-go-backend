@@ -10,10 +10,13 @@ package controller
 import (
 	"backend/model"
 	"backend/usecase"
+	"backend/utils"
 	"net/http"
+	"path/filepath"
 	"strconv"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -63,43 +66,6 @@ func (cc *cuisineController) GetCuisineById(c echo.Context) error {
 	return c.JSON(http.StatusOK, cuisineRes)
 }
 
-// func (cc *cuisineController) CreateCuisine(c echo.Context) error {
-// 	user := c.Get("user").(*jwt.Token)
-// 	claims := user.Claims.(jwt.MapClaims)
-// 	userId := claims["user_id"]
-// 	//log.Print(userId)
-
-// 	cuisine := model.Cuisine{}
-// 	if err := c.Bind(&cuisine); err != nil { //リクエストボディに含まれる内容をcuisine構造体に代入
-// 		return c.JSON(http.StatusBadRequest, err.Error())
-// 	}
-// 	cuisine.UserId = uint(userId.(float64))
-// 	cuisineRes, err := cc.cu.CreateCuisine(cuisine)
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, err.Error())
-// 	}
-// 	return c.JSON(http.StatusCreated, cuisineRes)
-// }
-
-// func (cc *cuisineController) UpdateCuisine(c echo.Context) error {
-// 	user := c.Get("user").(*jwt.Token)
-// 	claims := user.Claims.(jwt.MapClaims)
-// 	userId := claims["user_id"]
-// 	id := c.Param("cuisineId")
-// 	cuisineId, _ := strconv.Atoi(id)
-// 	//log.Print(userId)
-
-// 	cuisine := model.Cuisine{}
-// 	if err := c.Bind(&cuisine); err != nil {
-// 		return c.JSON(http.StatusBadRequest, err.Error())
-// 	}
-// 	cuisineRes, err := cc.cu.UpdateCuisine(cuisine, uint(userId.(float64)), uint(cuisineId))
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, err.Error())
-// 	}
-// 	return c.JSON(http.StatusOK, cuisineRes)
-// }
-
 func (cc *cuisineController) DeleteCuisine(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
@@ -127,17 +93,46 @@ func (cc *cuisineController) AddCuisine(c echo.Context) error {
 	iconFile, err := c.FormFile("icon")
 	title := c.FormValue("title")
 	url := c.FormValue("url")
+	comment := c.FormValue("comment") // コメントを取得
+
 	if err != nil {
 		if err != http.ErrMissingFile {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 	}
 
+	var imageURL string
+	if iconFile != nil {
+		// ファイルを読み込みbase64エンコード
+		src, err := iconFile.Open()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		defer src.Close()
+
+		userIdStr := strconv.FormatUint(uint64(userId.(float64)), 10)
+
+		// Cloud Storage にアップロード
+		bucket := "cookmeet"
+		objectName := "images/" + userIdStr + "/" + uuid.New().String() + filepath.Ext(iconFile.Filename)
+
+		imageURL, err = utils.UploadToCloudStorage(bucket, objectName, src)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+	}
+
 	cuisine := model.Cuisine{}
 	cuisine.UserId = uint(userId.(float64))
-	//log.Print(url)
+	cuisine.Title = title
+	cuisine.URL = url
+	cuisine.Comment = comment // コメントをセット
+	// 画像がアップロードされた場合のみURLをセット
+	if imageURL != "" {
+		cuisine.IconUrl = &imageURL // Cloud StorageのURLをセット
+	}
 
-	cuisineRes, err := cc.cu.AddCuisine(cuisine, iconFile, url, title)
+	cuisineRes, err := cc.cu.AddCuisine(cuisine, &imageURL, url, title)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -186,41 +181,3 @@ func (cc *cuisineController) SetCuisine(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, newcuisineRes)
 }
-
-// 料理の写真を追加
-
-// func (cc *cuisineController) UploadImage(c echo.Context) error {
-// 	user := c.Get("user").(*jwt.Token)
-// 	claims := user.Claims.(jwt.MapClaims)
-// 	userId := claims["user_id"]
-// 	id := c.Param("cuisineId")
-// 	cuisineId, _ := strconv.Atoi(id)
-// 	file, err := c.FormFile("image")
-// 	if err != nil {
-// 		return c.JSON(http.StatusBadRequest, err.Error())
-// 	}
-// 	img, err := file.Open()
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, err.Error())
-// 	}
-// 	defer img.Close()
-// 	// 画像データをバイト配列に変換する
-// 	imgBytes := make([]byte, file.Size)
-// 	_, err = img.Read(imgBytes)
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, err.Error())
-// 	}
-// 	cuisine := model.Cuisine{}
-// 	if err := c.Bind(&cuisine); err != nil { //リクエストボディに含まれる内容をcuisine構造体に代入
-// 		return c.JSON(http.StatusBadRequest, err.Error())
-// 	}
-// 	// cuisine.UserId = uint(userId.(float64))
-// 	// cuisine.Image = imgBytes
-// 	// cuisineRes, err := cc.cu.CreateCuisine(cuisine)
-// 	log.Print("発火1")
-// 	cuisineRes, err := cc.cu.UpdateCuisine_Image(cuisine, imgBytes, uint(userId.(float64)), uint(cuisineId))
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, err.Error())
-// 	}
-// 	return c.JSON(http.StatusOK, cuisineRes)
-// }
