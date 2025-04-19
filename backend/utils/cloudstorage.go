@@ -12,8 +12,9 @@ import (
 
 // UploadToCloudStorage はファイルを GCS にアップロードし、公開URLを返す
 func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string, error) {
-	ctx := context.Background()
-	// credentialFilePath := "./cookmeet-ai-b1a34baf28a6.json"
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel() // コンテキストをキャンセルして確実にリソースを解放
+
 	credentialFilePath := "/etc/secrets/cookmeet-backend.json"
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(credentialFilePath))
 
@@ -38,6 +39,8 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 	}
 
 	// 公開URLを生成
+	// publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
+
 	// publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
 
 	publicURL, err := generateSignedURL(bucket, objectName)

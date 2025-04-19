@@ -4,7 +4,8 @@ WORKDIR /app/
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY ./backend .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+# ビルド時のメモリ使用量を抑えるフラグを追加
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -a -installsuffix cgo -o main .
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates tzdata && \
@@ -13,6 +14,13 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 
 COPY --from=builder /app/cookmeet-ai-b1a34baf28a6.json .
-RUN mkdir -p cuisine_images user_images
-EXPOSE 8080
-CMD ["./main"]
+
+# GCのガベージコレクション設定を調整
+ENV GOGC=20
+# 最大プロセス数を制限
+ENV GOMAXPROCS=1
+# ポート設定
+ENV PORT=8080
+
+EXPOSE ${PORT}
+CMD ["go", "run", "main.go"]
