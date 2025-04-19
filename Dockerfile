@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.23-alpine
 
 WORKDIR /app/
 COPY backend/go.mod backend/go.sum ./
@@ -19,8 +19,6 @@ COPY --from=builder /app/cookmeet-ai-b1a34baf28a6.json .
 ENV GOGC=20
 # 最大プロセス数を制限
 ENV GOMAXPROCS=1
-# ポート設定
-ENV PORT=8080
 
-EXPOSE ${PORT}
+EXPOSE 8080
 CMD ["go", "run", "main.go"]
