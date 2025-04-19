@@ -112,5 +112,5 @@ jobs:
     #       --platform managed \
     #       --region asia-northeast1 \
     #       --allow-unauthenticated \
-    #       --set-env-vars="PORT=8081,POSTGRES_USER=${{ secrets.POSTGRES_USER }},POSTGRES_PW=${{ secrets.POSTGRES_PW }},POSTGRES_DB=${{ secrets.POSTGRES_DB }},POSTGRES_PORT=${{ secrets.POSTGRES_PORT }},POSTGRES_HOST=${{ secrets.POSTGRES_HOST }},GO_ENV=production,SECRET=${{ secrets.JWT_SECRET }},API_DOMAIN=${{ secrets.API_DOMAIN }},FE_URL=${{ secrets.FE_URL }}" \
+    #       --set-env-vars="PORT=8080,POSTGRES_USER=${{ secrets.POSTGRES_USER }},POSTGRES_PW=${{ secrets.POSTGRES_PW }},POSTGRES_DB=${{ secrets.POSTGRES_DB }},POSTGRES_PORT=${{ secrets.POSTGRES_PORT }},POSTGRES_HOST=${{ secrets.POSTGRES_HOST }},GO_ENV=production,SECRET=${{ secrets.JWT_SECRET }},API_DOMAIN=${{ secrets.API_DOMAIN }},FE_URL=${{ secrets.FE_URL }}" \
     #       --update-secrets="/app/secrets/cookmeet-ai-service-account.json=cookmeet-ai-service-account-json:latest"

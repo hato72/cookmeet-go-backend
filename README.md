@@ -18,7 +18,7 @@ https://free-casquette-dee.notion.site/d558148d80f742a4ac77c0bf76b4a2c9?pvs=4
 ```sh
 .env.dev:
 
-PORT=8081
+PORT=8080
 POSTGRES_USER=
 POSTGRES_PW=
 POSTGRES_DB=

@@ -32,11 +32,11 @@ services:
       dockerfile: backend/Dockerfile
     container_name: backend
     ports:
-      - 8081:8081
+      - 8080:8080
     depends_on:
       - db
     environment:
-      - PORT=8081
+      - PORT=8080
       - POSTGRES_USER=hato
       - POSTGRES_PW=hato72
       - POSTGRES_DB=hato
