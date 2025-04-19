@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
-	"google.golang.org/api/option"
 )
 
 // UploadToCloudStorage はファイルを GCS にアップロードし、公開URLを返す
@@ -15,10 +14,10 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel() // コンテキストをキャンセルして確実にリソースを解放
 
-	credentialFilePath := "/etc/secrets/cookmeet-backend.json"
-	client, err := storage.NewClient(ctx, option.WithCredentialsFile(credentialFilePath))
+	// credentialFilePath := "/etc/secrets/cookmeet-backend.json"
+	// client, err := storage.NewClient(ctx, option.WithCredentialsFile(credentialFilePath))
 
-	//client, err := storage.NewClient(ctx)
+	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return "", fmt.Errorf("failed to create storage client: %v", err)
 	}
