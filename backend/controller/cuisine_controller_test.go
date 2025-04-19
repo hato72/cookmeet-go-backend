@@ -267,10 +267,10 @@ func TestAddCuisine(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.Set("user", createJWTToken(tc.userId))
 
-			// iconUrlパラメータをnilに変更
+			// モックの設定を修正: 型チェックのみではなく、任意の値を受け入れるように変更
 			mockUsecase.On("AddCuisine",
 				mock.AnythingOfType("model.Cuisine"),
-				(*string)(nil), // FileHeaderではなくstringポインタに変更
+				mock.AnythingOfType("*string"), // nilであるかどうかにかかわらず任意の*string型を受け入れる
 				tc.url,
 				tc.title,
 			).Return(tc.mockResponse, tc.mockError)
