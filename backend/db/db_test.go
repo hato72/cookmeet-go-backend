@@ -57,8 +57,8 @@ func TestNewDB(t *testing.T) {
 			if err != nil {
 				t.Errorf("Failed to get current database name: %v", err)
 			}
-			if dbName != os.Getenv("TEST_POSTGRES_DB") {
-				t.Errorf("Expected database %s, got %s", os.Getenv("TEST_POSTGRES_DB"), dbName)
+			if dbName != os.Getenv("POSTGRES_DB") {
+				t.Errorf("Expected database %s, got %s", os.Getenv("POSTGRES_DB"), dbName)
 			}
 		})
 	}

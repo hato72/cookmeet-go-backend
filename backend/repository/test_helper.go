@@ -23,11 +23,11 @@ import (
 func SetupTestDB() *gorm.DB {
 	// テスト用のDB接続情報
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tokyo",
-		os.Getenv("TEST_POSTGRES_HOST"),
-		os.Getenv("TEST_POSTGRES_USER"),
-		os.Getenv("TEST_POSTGRES_PW"),
-		os.Getenv("TEST_POSTGRES_DB"),
-		os.Getenv("TEST_POSTGRES_PORT"))
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PW"),
+		os.Getenv("POSTGRES_DB"),
+		os.Getenv("POSTGRES_PORT"))
 
 	// テスト用のログ設定
 	config := &gorm.Config{
