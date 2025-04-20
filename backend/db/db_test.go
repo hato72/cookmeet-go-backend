@@ -5,16 +5,15 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
-func init() {
-	// テスト環境変数の読み込み
-	if err := godotenv.Load("../.env.test"); err != nil {
-		panic("Error loading .env.test file")
-	}
-}
+// func init() {
+// 	// テスト環境変数の読み込み
+// 	if err := godotenv.Load("../.env.test"); err != nil {
+// 		panic("Error loading .env.test file")
+// 	}
+// }
 
 func TestNewDB(t *testing.T) {
 	tests := []struct {
@@ -58,8 +57,8 @@ func TestNewDB(t *testing.T) {
 			if err != nil {
 				t.Errorf("Failed to get current database name: %v", err)
 			}
-			if dbName != os.Getenv("POSTGRES_DB") {
-				t.Errorf("Expected database %s, got %s", os.Getenv("POSTGRES_DB"), dbName)
+			if dbName != os.Getenv("TEST_POSTGRES_DB") {
+				t.Errorf("Expected database %s, got %s", os.Getenv("TEST_POSTGRES_DB"), dbName)
 			}
 		})
 	}

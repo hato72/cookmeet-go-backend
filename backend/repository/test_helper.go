@@ -7,28 +7,27 @@ import (
 
 	"backend/model"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-func init() {
-	err := godotenv.Load("./.env.test")
-	if err != nil {
-		log.Printf("Warning: .env.test file not found: %v", err)
-	}
-}
+// func init() {
+// 	err := godotenv.Load("./.env.test")
+// 	if err != nil {
+// 		log.Printf("Warning: .env.test file not found: %v", err)
+// 	}
+// }
 
 // SetupTestDB initializes and returns a test database connection
 func SetupTestDB() *gorm.DB {
 	// テスト用のDB接続情報
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tokyo",
-		os.Getenv("POSTGRES_HOST"),
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PW"),
-		os.Getenv("POSTGRES_DB"),
-		os.Getenv("POSTGRES_PORT"))
+		os.Getenv("TEST_POSTGRES_HOST"),
+		os.Getenv("TEST_POSTGRES_USER"),
+		os.Getenv("TEST_POSTGRES_PW"),
+		os.Getenv("TEST_POSTGRES_DB"),
+		os.Getenv("TEST_POSTGRES_PORT"))
 
 	// テスト用のログ設定
 	config := &gorm.Config{
