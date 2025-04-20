@@ -26,6 +26,7 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 	// GCS にファイルをアップロード
 	bucket := client.Bucket(bucketName)
 	obj := bucket.Object(objectName)
+	fmt.Printf("bucket: %s, object: %s\n", bucketName, objectName)
 	w := obj.NewWriter(ctx)
 	w.ContentType = "image/jpeg" // 必要に応じて変更
 	w.CacheControl = "public, max-age=86400"
