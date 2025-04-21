@@ -23,8 +23,9 @@ jobs:
           POSTGRES_USER: hato
           POSTGRES_PASSWORD: hato72
           POSTGRES_DB: hato_test
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
-          - 5433:5432  # ポートを5433に変更
+          - 5433:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -64,6 +65,12 @@ jobs:
         mkdir -p user_images/icons
         mkdir -p cuisine_images/cuisine_icons
 
+    - name: Wait for PostgreSQL
+      run: |
+        while ! nc -z localhost 5433; do
+          sleep 1
+        done
+
     - name: Run Tests
       run: |
         cd backend
@@ -72,10 +79,11 @@ jobs:
         POSTGRES_USER: hato
         POSTGRES_PASSWORD: hato72
         POSTGRES_DB: hato_test
-        POSTGRES_PORT: 5433  # ポートを5433に変更
+        POSTGRES_PORT: 5433
         POSTGRES_HOST: localhost
         GO_ENV: test
         SECRET: test_secret
+        DATABASE_URL: postgres://hato:hato72@localhost:5433/hato_test?sslmode=disable
 
   deploy:
     name: Deploy to Production
