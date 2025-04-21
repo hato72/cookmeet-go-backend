@@ -48,7 +48,6 @@ func main() {
 	// アプリケーション設定を環境変数から取得
 	port := os.Getenv("PORT")
 	goEnv := os.Getenv("GO_ENV")
-	secret := os.Getenv("SECRET")
 	feURL := os.Getenv("FE_URL")
 	if port == "" {
 		port = "8081"
