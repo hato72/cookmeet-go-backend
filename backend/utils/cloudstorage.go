@@ -43,15 +43,12 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 
 	// publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
 
-	// publicURL, err := generateSignedURL(bucket, objectName)
-	// if err != nil {
-	// 	return "", fmt.Errorf("failed to generate signed URL: %v", err)
-	// }
-	// return publicURL, nil
-	
-	// 公開URLを直接生成
-	publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
+	publicURL, err := generateSignedURL(bucket, objectName)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate signed URL: %v", err)
+	}
 	return publicURL, nil
+
 }
 
 // 署名付きURLを生成する関数
