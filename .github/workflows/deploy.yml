@@ -12,6 +12,25 @@ env:
   REGION: asia-southeast1
 
 jobs:
+  lint:
+    name: Run Lint
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[Notest]')"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          working-directory: backend
+          args: --timeout=5m
+
   test:
     name: Run Tests
     runs-on: ubuntu-latest
@@ -59,7 +78,12 @@ jobs:
         cd backend
         go mod download
 
-    - name: Create test directories
+    - name: Initialize test database
+      run: |
+        PGPASSWORD=hato72 psql -h localhost -U hato -p 5433 -d hato_test -c "SELECT 1"
+      continue-on-error: true
+
+    - name: Create test directories and setup database
       run: |
         cd backend
         mkdir -p user_images/icons
@@ -87,7 +111,7 @@ jobs:
 
   deploy:
     name: Deploy to Production
-    needs: test
+    needs: [test, lint]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
@@ -120,7 +144,7 @@ jobs:
     - name: Build and push Docker image
       run: |-
         gcloud auth configure-docker
-        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
+        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA . 
         docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
 
     - name: Build and push Docker image
