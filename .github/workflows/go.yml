@@ -74,12 +74,12 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
      # GCPの認証設定
-    # - name: Set up Cloud SDK
-    #   uses: google-github-actions/setup-gcloud@v1
-    #   with:
-    #     project_id: ${{ secrets.GCP_PROJECT_ID }}
-    #     service_account_key: ${{ secrets.GCP_SA_KEY }}
-    #     export_default_credentials: true
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
 
     # # Dockerの認証設定
     # - name: Authorize Docker push to Artifact Registry
@@ -105,12 +105,10 @@ jobs:
     #     timeout: 500 # optional
 
     # Cloud Runへのデプロイ
-    # - name: Deploy to Cloud Run
-    #   run: |
-    #     gcloud run deploy cookmeet-backend \
-    #       --image asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cookmeet-images/backend:${{ github.sha }} \
-    #       --platform managed \
-    #       --region asia-northeast1 \
-    #       --allow-unauthenticated \
-    #       --set-env-vars="PORT=8080,POSTGRES_USER=${{ secrets.POSTGRES_USER }},POSTGRES_PW=${{ secrets.POSTGRES_PW }},POSTGRES_DB=${{ secrets.POSTGRES_DB }},POSTGRES_PORT=${{ secrets.POSTGRES_PORT }},POSTGRES_HOST=${{ secrets.POSTGRES_HOST }},GO_ENV=production,SECRET=${{ secrets.JWT_SECRET }},API_DOMAIN=${{ secrets.API_DOMAIN }},FE_URL=${{ secrets.FE_URL }}" \
-    #       --update-secrets="/app/secrets/cookmeet-ai-service-account.json=cookmeet-ai-service-account-json:latest"
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy cookmeet-go-backend \
+          --image ${{ secrets.DOCKER_USERNAME }}/go-backend:latest \
+          --platform managed \
+          --region asia-southeast1 \
+          --allow-unauthenticated
