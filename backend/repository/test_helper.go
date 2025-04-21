@@ -7,17 +7,18 @@ import (
 
 	"backend/model"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-// func init() {
-// 	err := godotenv.Load("./.env.test")
-// 	if err != nil {
-// 		log.Printf("Warning: .env.test file not found: %v", err)
-// 	}
-// }
+func init() {
+	err := godotenv.Load("./.env.test")
+	if err != nil {
+		log.Printf("Warning: .env.test file not found: %v", err)
+	}
+}
 
 // SetupTestDB initializes and returns a test database connection
 func SetupTestDB() *gorm.DB {

@@ -59,20 +59,6 @@ jobs:
       with:
         go-version: '1.23'
 
-    - name: Create .env.test file
-      run: |
-        cd backend
-        echo "PORT=8081" > .env.test
-        echo "POSTGRES_USER=hato" >> .env.test
-        echo "POSTGRES_PW=hato72" >> .env.test
-        echo "POSTGRES_DB=hato_test" >> .env.test
-        echo "POSTGRES_PORT=5432" >> .env.test
-        echo "POSTGRES_HOST=localhost" >> .env.test
-        echo "GO_ENV=test" >> .env.test
-        echo "SECRET=test_secret" >> .env.test
-        echo "API_DOMAIN=localhost" >> .env.test
-        echo "FE_URL=http://localhost:3000" >> .env.test
-
     - name: Install dependencies
       run: |
         cd backend
