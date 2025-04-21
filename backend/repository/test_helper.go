@@ -67,9 +67,8 @@ func CreateTestUser(db *gorm.DB) *model.User {
 		Email:    "test@example.com",
 		Password: "password123",
 	}
-	result := db.Create(user)
-	if result.Error != nil {
-		panic(fmt.Sprintf("failed to create test user: %v", result.Error))
+	if err := db.Create(user).Error; err != nil {
+		panic(fmt.Sprintf("failed to create test user: %v", err))
 	}
 	return user
 }

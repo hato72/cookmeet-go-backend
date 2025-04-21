@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: hato
       POSTGRES_PASSWORD: hato72
-      POSTGRES_DB: hato
+      POSTGRES_DB: hato_test
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -18,7 +18,7 @@ services:
     image: postgres:latest
     container_name: test-db
     ports:
-      - 5433:5432
+      - 5432:5432
     environment:
       POSTGRES_USER: hato
       POSTGRES_PASSWORD: hato72
@@ -40,7 +40,7 @@ services:
       - POSTGRES_USER=hato
       - POSTGRES_PW=hato72
       - POSTGRES_DB=hato_test
-      - POSTGRES_PORT=5433
+      - POSTGRES_PORT=5432
       - POSTGRES_HOST=db
       - GO_ENV=dev
       - SECRET=uu5pveql

@@ -44,7 +44,7 @@ jobs:
           POSTGRES_DB: hato_test
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
-          - 5433:5432
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -66,7 +66,7 @@ jobs:
         echo "POSTGRES_USER=hato" >> .env.test
         echo "POSTGRES_PW=hato72" >> .env.test
         echo "POSTGRES_DB=hato_test" >> .env.test
-        echo "POSTGRES_PORT=5433" >> .env.test
+        echo "POSTGRES_PORT=5432" >> .env.test
         echo "POSTGRES_HOST=localhost" >> .env.test
         echo "GO_ENV=test" >> .env.test
         echo "SECRET=test_secret" >> .env.test
@@ -80,7 +80,7 @@ jobs:
 
     - name: Initialize test database
       run: |
-        PGPASSWORD=hato72 psql -h localhost -U hato -p 5433 -d hato_test -c "SELECT 1"
+        PGPASSWORD=hato72 psql -h localhost -U hato -p 5432 -d hato_test -c "SELECT 1"
       continue-on-error: true
 
     - name: Create test directories and setup database
@@ -91,7 +91,7 @@ jobs:
 
     - name: Wait for PostgreSQL
       run: |
-        while ! nc -z localhost 5433; do
+        while ! nc -z localhost 5432; do
           sleep 1
         done
 
@@ -103,11 +103,11 @@ jobs:
         POSTGRES_USER: hato
         POSTGRES_PASSWORD: hato72
         POSTGRES_DB: hato_test
-        POSTGRES_PORT: 5433
+        POSTGRES_PORT: 5432
         POSTGRES_HOST: localhost
         GO_ENV: test
         SECRET: test_secret
-        DATABASE_URL: postgres://hato:hato72@localhost:5433/hato_test?sslmode=disable
+        DATABASE_URL: postgres://hato:hato72@localhost:5432/hato_test?sslmode=disable
 
   deploy:
     name: Deploy to Production
