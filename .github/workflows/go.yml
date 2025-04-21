@@ -74,12 +74,12 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
      # GCPの認証設定
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
-      with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        export_default_credentials: true
+    # - name: Set up Cloud SDK
+    #   uses: google-github-actions/setup-gcloud@v1
+    #   with:
+    #     project_id: ${{ secrets.GCP_PROJECT_ID }}
+    #     service_account_key: ${{ secrets.GCP_SA_KEY }}
+    #     export_default_credentials: true
 
     # # Dockerの認証設定
     # - name: Authorize Docker push to Artifact Registry
@@ -105,10 +105,10 @@ jobs:
     #     timeout: 500 # optional
 
     # Cloud Runへのデプロイ
-    - name: Deploy to Cloud Run
-      run: |
-        gcloud run deploy cookmeet-go-backend \
-          --image ${{ secrets.DOCKER_USERNAME }}/go-backend:latest \
-          --platform managed \
-          --region asia-southeast1 \
-          --allow-unauthenticated
+    # - name: Deploy to Cloud Run
+    #   run: |
+    #     gcloud run deploy cookmeet-go-backend \
+    #       --image ${{ secrets.DOCKER_USERNAME }}/go-backend:latest \
+    #       --platform managed \
+    #       --region asia-southeast1 \
+    #       --allow-unauthenticated
