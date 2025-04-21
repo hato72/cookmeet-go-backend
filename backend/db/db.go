@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -40,11 +41,28 @@ func NewDB() *gorm.DB {
 		os.Getenv("POSTGRES_PW"), os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_DB"))
 
-	db, err := gorm.Open(postgres.Open(url), &gorm.Config{})
+	// GORMの設定を追加
+	gormConfig := &gorm.Config{
+		PrepareStmt: false, // プリペアドステートメントを無効化
+	}
+
+	db, err := gorm.Open(postgres.Open(url), gormConfig)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println("Connceted")
+
+	// 接続プールの設定
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// 接続プールの最大数を設定
+	sqlDB.SetMaxOpenConns(10)  // 同時に開くことができる接続の最大数
+	sqlDB.SetMaxIdleConns(5)   // アイドル状態で保持する接続の最大数
+	sqlDB.SetConnMaxLifetime(time.Hour) // 接続の最大寿命
+
+	fmt.Println("Connected")
 	return db
 }
 
