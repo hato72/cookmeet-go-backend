@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ '*' ]
 
+gcp_env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  SERVICE_NAME: cookmeet-go-backend
+  REGION: asia-southeast1
+
 jobs:
   test:
     name: Run Tests
@@ -67,24 +72,34 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-     # GCPの認証設定
-    # - name: Set up Cloud SDK
-    #   uses: google-github-actions/setup-gcloud@v1
+    # - name: Login to Docker Hub
+    #   uses: docker/login-action@v3
     #   with:
-    #     project_id: ${{ secrets.GCP_PROJECT_ID }}
-    #     service_account_key: ${{ secrets.GCP_SA_KEY }}
-    #     export_default_credentials: true
+    #     username: ${{ secrets.DOCKER_USERNAME }}
+    #     password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # # Dockerの認証設定
-    # - name: Authorize Docker push to Artifact Registry
-    #   run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+    # - name: Build and push Docker image
+    #   uses: docker/build-push-action@v5
+    #   with:
+    #     context: .
+    #     file: ./Dockerfile
+    #     push: true
+    #     tags: ${{ secrets.DOCKER_USERNAME }}/go-backend:latest  
 
+    # GCP認証
+    - uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+    
+    # GCP CLIのセットアップ
+    - uses: google-github-actions/setup-gcloud@v1
+    
+    # Dockerイメージのビルドとプッシュ
+    - name: Build and push Docker image
+      run: |-
+        gcloud auth configure-docker
+        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
+        docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
@@ -93,6 +108,15 @@ jobs:
         file: ./Dockerfile
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/go-backend:latest
+
+    # Cloud Runへのデプロイ
+    - name: Deploy to Cloud Run
+      run: |-
+        gcloud run deploy $SERVICE_NAME \
+          --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated
 
     # ここにデプロイ先のサービスに応じたデプロイステップを追加
     # 例: Render, Heroku, GCP等へのデプロイ設定
