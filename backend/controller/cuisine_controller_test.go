@@ -257,9 +257,15 @@ func TestAddCuisine(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			body := new(bytes.Buffer)
 			writer := multipart.NewWriter(body)
-			writer.WriteField("title", tc.title)
-			writer.WriteField("url", tc.url)
-			writer.Close()
+			if err := writer.WriteField("title", tc.title); err != nil {
+				t.Fatalf("Failed to write title field: %v", err)
+			}
+			if err := writer.WriteField("url", tc.url); err != nil {
+				t.Fatalf("Failed to write url field: %v", err)
+			}
+			if err := writer.Close(); err != nil {
+				t.Fatalf("Failed to close writer: %v", err)
+			}
 
 			req := httptest.NewRequest(http.MethodPost, "/cuisines", body)
 			req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
@@ -334,9 +340,15 @@ func TestSetCuisine(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			body := new(bytes.Buffer)
 			writer := multipart.NewWriter(body)
-			writer.WriteField("title", tc.title)
-			writer.WriteField("url", tc.url)
-			writer.Close()
+			if err := writer.WriteField("title", tc.title); err != nil {
+				t.Fatalf("Failed to write title field: %v", err)
+			}
+			if err := writer.WriteField("url", tc.url); err != nil {
+				t.Fatalf("Failed to write url field: %v", err)
+			}
+			if err := writer.Close(); err != nil {
+				t.Fatalf("Failed to close writer: %v", err)
+			}
 
 			req := httptest.NewRequest(http.MethodPut, "/cuisines/:id", body)
 			req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())

@@ -99,7 +99,9 @@ func TestSignUp(t *testing.T) {
 
 			if tc.expectStatus == http.StatusCreated {
 				var response model.UserResponse
-				json.Unmarshal(rec.Body.Bytes(), &response)
+				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+					t.Errorf("Failed to unmarshal response: %v", err)
+				}
 				assert.Equal(t, tc.mockResponse.ID, response.ID)
 				assert.Equal(t, tc.mockResponse.Name, response.Name)
 				assert.Equal(t, tc.mockResponse.Email, response.Email)

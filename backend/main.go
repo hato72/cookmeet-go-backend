@@ -62,9 +62,11 @@ func main() {
 	defer log.Println("Successfully Migrated")
 
 	// マイグレーション
-	db.AutoMigrate(&model.User{}, &model.Cuisine{})
+	if err := db.AutoMigrate(&model.User{}, &model.Cuisine{}); err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
 
-	// 以下、従来どおりの初期化…
+	// 以下、従来どおりの初期化
 	userValidator := validator.NewUserValidator()
 	cuisineValidator := validator.NewCuisineValidator()
 
