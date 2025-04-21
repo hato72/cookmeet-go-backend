@@ -39,8 +39,8 @@ services:
       - PORT=8081
       - POSTGRES_USER=hato
       - POSTGRES_PW=hato72
-      - POSTGRES_DB=hato
-      - POSTGRES_PORT=5432
+      - POSTGRES_DB=hato_test
+      - POSTGRES_PORT=5433
       - POSTGRES_HOST=db
       - GO_ENV=dev
       - SECRET=uu5pveql
