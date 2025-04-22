@@ -4,6 +4,7 @@ package repository
 
 import (
 	"backend/model"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -49,7 +50,7 @@ func (ur *userRepository) CreateUser(user *model.User) error {
 
 	if err := tx.Create(user).Error; err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("failed to create user: %w", err)
 	}
 
 	return tx.Commit().Error
