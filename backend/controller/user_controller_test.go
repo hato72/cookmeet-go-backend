@@ -283,7 +283,9 @@ func TestUpdate(t *testing.T) {
 
 			if tc.expectStatus == http.StatusOK {
 				var response model.UserResponse
-				json.Unmarshal(rec.Body.Bytes(), &response)
+				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+					t.Fatalf("レスポンスのUnmarshalに失敗: %v", err)
+				}
 				assert.Equal(t, uint(1), response.ID)
 			}
 
@@ -309,7 +311,9 @@ func TestCsrfToken(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		var response map[string]string
-		json.Unmarshal(rec.Body.Bytes(), &response)
+		if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+			t.Fatalf("CSRFトークンレスポンスのUnmarshalに失敗: %v", err)
+		}
 		assert.Equal(t, "test-csrf-token", response["csrf_token"])
 	})
 }
