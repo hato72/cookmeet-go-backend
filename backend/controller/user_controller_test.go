@@ -168,6 +168,9 @@ func TestLogin(t *testing.T) {
 			// 	mockUsecase.On("Login", user).Return(tc.mockToken, tc.mockError)
 			// }
 
+			// モックの期待値を設定
+			mockUsecase.On("Login", user).Return(tc.mockToken, tc.mockError)
+
 			err := controller.Login(c)
 
 			// ログイン成功時のみトークンを確認
