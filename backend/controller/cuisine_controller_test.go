@@ -122,7 +122,9 @@ func TestGetAllCuisines(t *testing.T) {
 
 			if tc.expectStatus == http.StatusOK { //モックが期待通りの結果を返す場合
 				var response []model.CuisineResponse
-				json.Unmarshal(rec.Body.Bytes(), &response)
+				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+					t.Fatalf("failed to unmarshal response: %v", err)
+				}
 				assert.Equal(t, len(tc.mockResponse), len(response))
 			}
 
@@ -175,7 +177,9 @@ func TestGetCuisineById(t *testing.T) {
 
 			if tc.expectStatus == http.StatusOK {
 				var response model.CuisineResponse
-				json.Unmarshal(rec.Body.Bytes(), &response)
+				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+					t.Fatalf("failed to unmarshal response: %v", err)
+				}
 				assert.Equal(t, tc.mockResponse.ID, response.ID)
 				assert.Equal(t, tc.mockResponse.Title, response.Title)
 			}
@@ -287,7 +291,9 @@ func TestAddCuisine(t *testing.T) {
 
 			if tc.expectStatus == http.StatusOK {
 				var response model.CuisineResponse
-				json.Unmarshal(rec.Body.Bytes(), &response)
+				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+					t.Fatalf("failed to unmarshal response: %v", err)
+				}
 				assert.Equal(t, tc.mockResponse.Title, response.Title)
 				assert.Equal(t, tc.mockResponse.URL, response.URL)
 			}
@@ -374,7 +380,9 @@ func TestSetCuisine(t *testing.T) {
 
 			if tc.expectStatus == http.StatusOK {
 				var response model.CuisineResponse
-				json.Unmarshal(rec.Body.Bytes(), &response)
+				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+					t.Fatalf("failed to unmarshal response: %v", err)
+				}
 				assert.Equal(t, tc.mockSetRes.Title, response.Title)
 				assert.Equal(t, tc.mockSetRes.URL, response.URL)
 			}

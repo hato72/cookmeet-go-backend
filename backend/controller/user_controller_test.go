@@ -228,9 +228,19 @@ func TestUpdate(t *testing.T) {
 			setupRequest: func() (*http.Request, *httptest.ResponseRecorder) {
 				body := new(bytes.Buffer)
 				writer := multipart.NewWriter(body)
-				writer.WriteField("name", "Updated Name")
-				writer.WriteField("email", "new@example.com")
-				writer.Close()
+
+				// エラーチェックを追加
+				if err := writer.WriteField("name", "Updated Name"); err != nil {
+					t.Fatalf("failed to write name field: %v", err)
+				}
+				if err := writer.WriteField("email", "new@example.com"); err != nil {
+					t.Fatalf("failed to write email field: %v", err)
+				}
+
+				// Close()のエラーもチェック
+				if err := writer.Close(); err != nil {
+					t.Fatalf("failed to close writer: %v", err)
+				}
 
 				req := httptest.NewRequest(http.MethodPut, "/users/update", body)
 				req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
