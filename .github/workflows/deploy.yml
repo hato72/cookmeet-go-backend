@@ -127,11 +127,11 @@ jobs:
     - uses: google-github-actions/setup-gcloud@v1
     
     # Dockerイメージのビルドとプッシュ
-    - name: Build and push Docker image
-      run: |-
-        gcloud auth configure-docker
-        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA . 
-        docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
+    # - name: Build and push Docker image
+    #   run: |-
+    #     gcloud auth configure-docker
+    #     docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA . 
+    #     docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
