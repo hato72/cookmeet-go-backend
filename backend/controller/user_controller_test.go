@@ -127,21 +127,21 @@ func TestLogin(t *testing.T) {
 	}{
 		{
 			name:         "正常なログイン",
-			inputJSON:    `{"email":"test@example.com","password":"password123"}`,
+			inputJSON:    `{"name":"Test User","email":"test@example.com","password":"password123"}`,
 			mockToken:    "valid.jwt.token",
 			mockError:    nil,
 			expectStatus: http.StatusOK,
 		},
 		{
 			name:         "無効な認証情報",
-			inputJSON:    `{"email":"test@example.com","password":"wrongpassword"}`,
+			inputJSON:    `{"name":"Test User","email":"test@example.com","password":"wrongpassword"}`,
 			mockToken:    "",
 			mockError:    usecase.ErrUserNotFound,
 			expectStatus: http.StatusNotFound,
 		},
 		{
 			name:         "パスワードが間違っている",
-			inputJSON:    `{"email":"test@example.com","password":"wrongpassword"}`,
+			inputJSON:    `{"name":"Test User","email":"test@example.com","password":"wrongpassword"}`,
 			mockToken:    "",
 			mockError:    usecase.ErrInvalidPassword, // usecase で定義しているパスワード不一致エラー
 			expectStatus: http.StatusUnauthorized,
