@@ -84,7 +84,9 @@ func TestSignUp(t *testing.T) {
 			// モックの期待値を設定
 			if tc.expectStatus == http.StatusCreated {
 				var user model.User
-				json.Unmarshal([]byte(tc.inputJSON), &user)
+				if err := json.Unmarshal([]byte(tc.inputJSON), &user); err != nil {
+					t.Fatalf("Failed to unmarshal test input: %v", err)
+				}
 				mockUsecase.On("SignUp", user).Return(tc.mockResponse, tc.mockError)
 			}
 
@@ -157,9 +159,9 @@ func TestLogin(t *testing.T) {
 			c := e.NewContext(req, rec)
 
 			var user model.User
-			json.Unmarshal([]byte(tc.inputJSON), &user)
-			mockUsecase.On("Login", user).Return(tc.mockToken, tc.mockError)
-
+			if err := json.Unmarshal([]byte(tc.inputJSON), &user); err != nil {
+				t.Fatalf("Failed to unmarshal test input: %v", err)
+			}
 			// if tc.expectStatus == http.StatusOK {
 			// 	var user model.User
 			// 	json.Unmarshal([]byte(tc.inputJSON), &user)
