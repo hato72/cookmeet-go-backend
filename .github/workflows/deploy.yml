@@ -119,19 +119,21 @@ jobs:
     #     tags: ${{ secrets.DOCKER_USERNAME }}/go-backend:latest  
 
     # GCP認証
-    - uses: google-github-actions/auth@v1
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
     
     # GCP CLIのセットアップ
-    - uses: google-github-actions/setup-gcloud@v1
+    - name: Set up gcloud CLI
+      uses: google-github-actions/setup-gcloud@v1
     
     # Dockerイメージのビルドとプッシュ
-    # - name: Build and push Docker image
-    #   run: |-
-    #     gcloud auth configure-docker
-    #     docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA . 
-    #     docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
+    - name: Build and push Docker image to GCR
+      run: |
+        gcloud auth configure-docker
+        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA ./backend
+        docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
 
     # - name: Build and push Docker image
     #   uses: docker/build-push-action@v5
@@ -141,14 +143,14 @@ jobs:
     #     push: true
     #     tags: ${{ secrets.DOCKER_USERNAME }}/go-backend:latest
 
-    # # Cloud Runへのデプロイ
-    # - name: Deploy to Cloud Run
-    #   run: |-
-    #     gcloud run deploy $SERVICE_NAME \
-    #       --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
-    #       --region $REGION \
-    #       --platform managed \
-    #       --allow-unauthenticated
+    # Cloud Run へデプロイ
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy $SERVICE_NAME \
+          --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated
 
     # ここにデプロイ先のサービスに応じたデプロイステップを追加
     # 例: Render, Heroku, GCP等へのデプロイ設定
