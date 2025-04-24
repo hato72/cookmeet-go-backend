@@ -153,11 +153,11 @@ jobs:
     # Cloud Run へデプロイ
     - name: Deploy to Cloud Run
       run: |
-      gcloud run deploy $SERVICE_NAME \
-      --image asia-southeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/$SERVICE_NAME/$SERVICE_NAME:$TAG\
-      --region $REGION \
-      --platform managed \
-      --allow-unauthenticated \
+        gcloud run deploy $SERVICE_NAME \
+          --image asia-southeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/$SERVICE_NAME/$SERVICE_NAME:$TAG\
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated \
 
     # ここにデプロイ先のサービスに応じたデプロイステップを追加
     # 例: Render, Heroku, GCP等へのデプロイ設定
