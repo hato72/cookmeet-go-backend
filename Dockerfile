@@ -1,8 +1,8 @@
 FROM golang:1.23-alpine AS builder
 
 WORKDIR /app/
-COPY backend/go.mod backend/go.sum ./
-COPY backend/.env.test ./
+COPY ./backend/go.mod ./backend/go.sum ./
+COPY ./backend/.env.test ./
 RUN go mod download
 COPY ./backend .
 # ビルド時のメモリ使用量を抑えるフラグを追加
