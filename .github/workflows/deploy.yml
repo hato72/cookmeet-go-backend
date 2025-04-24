@@ -127,15 +127,19 @@ jobs:
     # GCP CLIのセットアップ
     - name: Set up gcloud CLI
       uses: google-github-actions/setup-gcloud@v1
+
+    - name: Configure Docker for Artifact Registry
+      run: |
+        gcloud auth configure-docker asia-southeast1-docker.pkg.dev --quiet
     
     # Dockerイメージのビルドとプッシュ
-    - name: Build and push Docker image to GCR
+    - name: Build and push Docker image to Artifact Registry
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./Dockerfile
         push: true
-        tags: gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+        tags: asia-southeast1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
     # - name: Build and push Docker image
     #   uses: docker/build-push-action@v5
@@ -149,7 +153,7 @@ jobs:
     - name: Deploy to Cloud Run
       run: |
         gcloud run deploy $SERVICE_NAME \
-          --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
+          --image asia-southeast1-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME/$SERVICE_NAME:$GITHUB_SHA \
           --region $REGION \
           --platform managed \
           --allow-unauthenticated
