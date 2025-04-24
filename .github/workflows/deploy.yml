@@ -139,7 +139,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: asia-southeast1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+        tags: asia-southeast1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/cookmeet-go-backend/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
     # - name: Build and push Docker image
     #   uses: docker/build-push-action@v5
