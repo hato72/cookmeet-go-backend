@@ -4,6 +4,7 @@ backend/.env.dev
 backend/.env.dev2
 backend/.env.prod
 backend/public/
+backend/Dockerfile
 
 backend/src/migrate/
 **/backend/cookmeet-ai-b1a34baf28a6.json
