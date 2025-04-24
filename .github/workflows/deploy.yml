@@ -130,10 +130,12 @@ jobs:
     
     # Dockerイメージのビルドとプッシュ
     - name: Build and push Docker image to GCR
-      run: |
-        gcloud auth configure-docker
-        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA ./backend
-        docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
     # - name: Build and push Docker image
     #   uses: docker/build-push-action@v5
