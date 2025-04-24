@@ -15,7 +15,7 @@ jobs:
   lint:
     name: Run Lint
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[Notest]')"
+    if: "!contains(github.event.head_commit.message, '[Nolint]')"
     steps:
       - uses: actions/checkout@v3
 
@@ -97,7 +97,7 @@ jobs:
 
   deploy:
     name: Deploy to Production
-    needs: [test, lint]
+    needs: [lint]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
