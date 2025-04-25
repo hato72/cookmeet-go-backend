@@ -4,8 +4,8 @@ name: Super Lint Code Base
 # https://github.com/github/super-linter
 
 env:
-  FILTER_REGEX_EXCLUDE: '^(?!(.*\.md$|.*\.yml$|.*\.yaml$|.*\.json$|.*\.txt$|.*\.csv$))'
-
+  FILTER_REGEX_EXCLUDE: '.*\.(md|yml|yaml|json|txt|csv|.env)$'
+  
 on:
   push:
     branches: [ main ]
@@ -21,7 +21,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+
+      # 依存関係のインストール
+      - name: Install dependencies
+        run: |
+          cd backend
+          go mod download
+
       - name: Lint Code Base
         uses: docker://github/super-linter:v2.2.0
         env:
           VALIDATE_ALL_CODEBASE: true
+          # 追加: Markdownの検証を無効化
+          VALIDATE_MARKDOWN: false
+          GOPATH: /github/workspace/backend
+          GO111MODULE: on
