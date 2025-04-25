@@ -23,18 +23,18 @@ type mockCuisineUsecase struct {
 
 // 以下のメソッドは、mock.Mockを埋め込んでいるため、自動的にモック化される
 // モック化したいメソッドをオーバーライド
-func (m *mockCuisineUsecase) GetAllCuisines(userId uint) ([]model.CuisineResponse, error) {
-	args := m.Called(userId)
+func (m *mockCuisineUsecase) GetAllCuisines(UserID uint) ([]model.CuisineResponse, error) {
+	args := m.Called(UserID)
 	return args.Get(0).([]model.CuisineResponse), args.Error(1)
 }
 
-func (m *mockCuisineUsecase) GetCuisineById(userId uint, cuisineId uint) (model.CuisineResponse, error) {
-	args := m.Called(userId, cuisineId)
+func (m *mockCuisineUsecase) GetCuisineByID(UserID uint, cuisineID uint) (model.CuisineResponse, error) {
+	args := m.Called(UserID, cuisineID)
 	return args.Get(0).(model.CuisineResponse), args.Error(1)
 }
 
-func (m *mockCuisineUsecase) DeleteCuisine(userId uint, cuisineId uint) error {
-	args := m.Called(userId, cuisineId)
+func (m *mockCuisineUsecase) DeleteCuisine(UserID uint, cuisineID uint) error {
+	args := m.Called(UserID, cuisineID)
 	return args.Error(0)
 }
 
@@ -45,8 +45,8 @@ func (m *mockCuisineUsecase) AddCuisine(cuisine model.Cuisine, IconURL *string, 
 }
 
 // SetCuisineメソッドも修正が必要
-func (m *mockCuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, userId uint, cuisineId uint) (model.CuisineResponse, error) {
-	args := m.Called(cuisine, iconFile, url, title, userId, cuisineId)
+func (m *mockCuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, UserID uint, cuisineID uint) (model.CuisineResponse, error) {
+	args := m.Called(cuisine, iconFile, url, title, UserID, cuisineID)
 	return args.Get(0).(model.CuisineResponse), args.Error(1)
 }
 
@@ -59,10 +59,10 @@ func setupCuisineTest(t *testing.T) (*echo.Echo, *mockCuisineUsecase, ICuisineCo
 }
 
 // JWT トークンを生成
-func createJWTToken(userId float64) *jwt.Token {
+func createJWTToken(UserID float64) *jwt.Token {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
-	claims["user_id"] = userId
+	claims["user_id"] = UserID
 	return token
 }
 
@@ -71,27 +71,27 @@ func TestGetAllCuisines(t *testing.T) {
 
 	testCases := []struct {
 		name         string
-		userId       float64
+		UserID       float64
 		mockResponse []model.CuisineResponse
 		mockError    error
 		expectStatus int
 	}{
 		{
 			name:   "正常な取得",
-			userId: 1,
+			UserID: 1,
 			mockResponse: []model.CuisineResponse{
 				{
 					ID:        1,
 					Title:     "Test Cuisine 1",
 					URL:       "https://example.com/1",
-					UserId:    1,
+					UserID:    1,
 					CreatedAt: time.Now(),
 				},
 				{
 					ID:        2,
 					Title:     "Test Cuisine 2",
 					URL:       "https://example.com/2",
-					UserId:    1,
+					UserID:    1,
 					CreatedAt: time.Now(),
 				},
 			},
@@ -100,7 +100,7 @@ func TestGetAllCuisines(t *testing.T) {
 		},
 		{
 			name:         "データなし",
-			userId:       2,
+			UserID:       2,
 			mockResponse: []model.CuisineResponse{},
 			mockError:    nil,
 			expectStatus: http.StatusOK,
@@ -112,9 +112,9 @@ func TestGetAllCuisines(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, "/cuisines", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.Set("user", createJWTToken(tc.userId))
+			c.Set("user", createJWTToken(tc.UserID))
 
-			mockUsecase.On("GetAllCuisines", uint(tc.userId)).Return(tc.mockResponse, tc.mockError)
+			mockUsecase.On("GetAllCuisines", uint(tc.UserID)).Return(tc.mockResponse, tc.mockError)
 
 			err := controller.GetAllCuisines(c) // テスト対象のメソッドを実行
 			assert.NoError(t, err)
@@ -133,26 +133,26 @@ func TestGetAllCuisines(t *testing.T) {
 	}
 }
 
-func TestGetCuisineById(t *testing.T) {
+func TestGetCuisineByID(t *testing.T) {
 	e, mockUsecase, controller := setupCuisineTest(t)
 
 	testCases := []struct {
 		name         string
-		userId       float64
-		cuisineId    string
+		UserID       float64
+		cuisineID    string
 		mockResponse model.CuisineResponse
 		mockError    error
 		expectStatus int
 	}{
 		{
 			name:      "正常な取得",
-			userId:    1,
-			cuisineId: "1",
+			UserID:    1,
+			cuisineID: "1",
 			mockResponse: model.CuisineResponse{
 				ID:        1,
 				Title:     "Test Cuisine",
 				URL:       "https://example.com",
-				UserId:    1,
+				UserID:    1,
 				CreatedAt: time.Now(),
 			},
 			mockError:    nil,
@@ -165,13 +165,13 @@ func TestGetCuisineById(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, "/cuisines/:id", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("cuisineId")
-			c.SetParamValues(tc.cuisineId)
-			c.Set("user", createJWTToken(tc.userId))
+			c.SetParamNames("cuisineID")
+			c.SetParamValues(tc.cuisineID)
+			c.Set("user", createJWTToken(tc.UserID))
 
-			mockUsecase.On("GetCuisineById", uint(tc.userId), uint(1)).Return(tc.mockResponse, tc.mockError)
+			mockUsecase.On("GetCuisineByID", uint(tc.UserID), uint(1)).Return(tc.mockResponse, tc.mockError)
 
-			err := controller.GetCuisineById(c)
+			err := controller.GetCuisineByID(c)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectStatus, rec.Code)
 
@@ -194,15 +194,15 @@ func TestDeleteCuisine(t *testing.T) {
 
 	testCases := []struct {
 		name         string
-		userId       float64
-		cuisineId    string
+		UserID       float64
+		cuisineID    string
 		mockError    error
 		expectStatus int
 	}{
 		{
 			name:         "正常な削除",
-			userId:       1,
-			cuisineId:    "1",
+			UserID:       1,
+			cuisineID:    "1",
 			mockError:    nil,
 			expectStatus: http.StatusNoContent,
 		},
@@ -213,11 +213,11 @@ func TestDeleteCuisine(t *testing.T) {
 			req := httptest.NewRequest(http.MethodDelete, "/cuisines/:id", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("cuisineId")
-			c.SetParamValues(tc.cuisineId)
-			c.Set("user", createJWTToken(tc.userId))
+			c.SetParamNames("cuisineID")
+			c.SetParamValues(tc.cuisineID)
+			c.Set("user", createJWTToken(tc.UserID))
 
-			mockUsecase.On("DeleteCuisine", uint(tc.userId), uint(1)).Return(tc.mockError)
+			mockUsecase.On("DeleteCuisine", uint(tc.UserID), uint(1)).Return(tc.mockError)
 
 			err := controller.DeleteCuisine(c)
 			assert.NoError(t, err)
@@ -233,7 +233,7 @@ func TestAddCuisine(t *testing.T) {
 
 	testCases := []struct {
 		name         string
-		userId       float64
+		UserID       float64
 		title        string
 		url          string
 		mockResponse model.CuisineResponse
@@ -242,14 +242,14 @@ func TestAddCuisine(t *testing.T) {
 	}{
 		{
 			name:   "正常な追加",
-			userId: 1,
+			UserID: 1,
 			title:  "New Cuisine",
 			url:    "https://example.com/new",
 			mockResponse: model.CuisineResponse{
 				ID:        1,
 				Title:     "New Cuisine",
 				URL:       "https://example.com/new",
-				UserId:    1,
+				UserID:    1,
 				CreatedAt: time.Now(),
 			},
 			mockError:    nil,
@@ -275,7 +275,7 @@ func TestAddCuisine(t *testing.T) {
 			req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.Set("user", createJWTToken(tc.userId))
+			c.Set("user", createJWTToken(tc.UserID))
 
 			// モックの設定を修正: 型チェックのみではなく、任意の値を受け入れるように変更
 			mockUsecase.On("AddCuisine",
@@ -308,8 +308,8 @@ func TestSetCuisine(t *testing.T) {
 
 	testCases := []struct {
 		name         string
-		userId       float64
-		cuisineId    string
+		UserID       float64
+		cuisineID    string
 		title        string
 		url          string
 		mockGetRes   model.CuisineResponse
@@ -319,22 +319,22 @@ func TestSetCuisine(t *testing.T) {
 	}{
 		{
 			name:      "正常な更新",
-			userId:    1,
-			cuisineId: "1",
+			UserID:    1,
+			cuisineID: "1",
 			title:     "Updated Cuisine",
 			url:       "https://example.com/updated",
 			mockGetRes: model.CuisineResponse{
 				ID:        1,
 				Title:     "Original Cuisine",
 				URL:       "https://example.com/original",
-				UserId:    1,
+				UserID:    1,
 				CreatedAt: time.Now(),
 			},
 			mockSetRes: model.CuisineResponse{
 				ID:        1,
 				Title:     "Updated Cuisine",
 				URL:       "https://example.com/updated",
-				UserId:    1,
+				UserID:    1,
 				CreatedAt: time.Now(),
 			},
 			mockError:    nil,
@@ -360,17 +360,17 @@ func TestSetCuisine(t *testing.T) {
 			req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("cuisineId")
-			c.SetParamValues(tc.cuisineId)
-			c.Set("user", createJWTToken(tc.userId))
+			c.SetParamNames("cuisineID")
+			c.SetParamValues(tc.cuisineID)
+			c.Set("user", createJWTToken(tc.UserID))
 
-			mockUsecase.On("GetCuisineById", uint(tc.userId), uint(1)).Return(tc.mockGetRes, nil)
+			mockUsecase.On("GetCuisineByID", uint(tc.UserID), uint(1)).Return(tc.mockGetRes, nil)
 			mockUsecase.On("SetCuisine",
 				mock.AnythingOfType("model.Cuisine"),
 				(*multipart.FileHeader)(nil),
 				tc.url,
 				tc.title,
-				uint(tc.userId),
+				uint(tc.UserID),
 				uint(1),
 			).Return(tc.mockSetRes, tc.mockError)
 

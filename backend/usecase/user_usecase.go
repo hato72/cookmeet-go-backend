@@ -84,7 +84,7 @@ func (uu *userUsecase) Login(user model.User) (string, error) {
 	if err := uu.uv.UserValidate(user); err != nil {
 		return "", err
 	}
-	storedUser := model.User{} //空のユーザーオブジェクト
+	storedUser := model.User{} // 空のユーザーオブジェクト
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil {
 		return "", ErrUserNotFound
 	}
@@ -95,9 +95,9 @@ func (uu *userUsecase) Login(user model.User) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": storedUser.ID,
-		"exp":     time.Now().Add(time.Hour * 12).Unix(), //jwtの有効期限
+		"exp":     time.Now().Add(time.Hour * 12).Unix(), // jwtの有効期限
 	})
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET"))) //jwtトークンの生成
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET"))) // jwtトークンの生成
 	if err != nil {
 		return "", err
 	}
@@ -156,7 +156,7 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 		Password: newPassword,
 		IconURL:  user.IconURL,
 	}
-	//log.Print("updateUser:", updatedUser)
+	// log.Print("updateUser:", updatedUser)
 
 	if err := uu.ur.UpdateUser(&updatedUser); err != nil {
 		return model.UserResponse{}, err
@@ -168,7 +168,7 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 		Email:   updatedUser.Email,
 		IconURL: updatedUser.IconURL,
 	}
-	//log.Print("resUser:", resUser)
+	// log.Print("resUser:", resUser)
 
 	return resUser, nil
 

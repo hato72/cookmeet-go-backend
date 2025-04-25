@@ -1,6 +1,6 @@
 package validator
 
-//ログイン等のフォームにemailまたはパスワードが入力されていないもしくは正しい形式でない場合のバリデーションを行っている
+// ログイン等のフォームにemailまたはパスワードが入力されていないもしくは正しい形式でない場合のバリデーションを行っている
 
 import (
 	"backend/model"
@@ -25,7 +25,7 @@ func (uv *userValidator) UserValidate(user model.User) error {
 			&user.Email,
 			validation.Required.Error("email is required"),
 			validation.RuneLength(1, 30).Error("limited max 30 char"),
-			is.Email.Error("is not valid email format"), //値がemailのフォーマットに準拠しているか
+			is.Email.Error("is not valid email format"), // 値がemailのフォーマットに準拠しているか
 		),
 		validation.Field(
 			&user.Password,

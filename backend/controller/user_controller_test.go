@@ -208,7 +208,7 @@ func TestLogout(t *testing.T) {
 		assert.Equal(t, 1, len(cookies))
 		assert.Equal(t, "token", cookies[0].Name)
 		assert.Equal(t, "", cookies[0].Value)
-		assert.True(t, cookies[0].Expires.Before(time.Now())) //現在時刻を指定
+		assert.True(t, cookies[0].Expires.Before(time.Now())) // 現在時刻を指定
 	})
 }
 

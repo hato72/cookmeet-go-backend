@@ -1,6 +1,6 @@
 package db
 
-//dbへの接続
+// dbへの接続
 
 import (
 	"fmt"
@@ -27,8 +27,8 @@ func NewDB() *gorm.DB {
 	// 	}
 	// }
 
-	//ローカルの場合は以下のコメントアウトを外す
-	//err := godotenv.Load(fmt.Sprintf("C:/Users/hatot/.vscode/go_backend_hackathon/backend/.env.dev"))
+	// ローカルの場合は以下のコメントアウトを外す
+	// err := godotenv.Load(fmt.Sprintf("C:/Users/hatot/.vscode/go_backend_hackathon/backend/.env.dev"))
 
 	if _, err := os.Stat(".env.dev"); err == nil {
 		if err := godotenv.Load(".env.dev"); err != nil {
@@ -59,8 +59,8 @@ func NewDB() *gorm.DB {
 	}
 
 	// 接続プールの最大数を設定
-	sqlDB.SetMaxOpenConns(10)  // 同時に開くことができる接続の最大数
-	sqlDB.SetMaxIdleConns(5)   // アイドル状態で保持する接続の最大数
+	sqlDB.SetMaxOpenConns(10)           // 同時に開くことができる接続の最大数
+	sqlDB.SetMaxIdleConns(5)            // アイドル状態で保持する接続の最大数
 	sqlDB.SetConnMaxLifetime(time.Hour) // 接続の最大寿命
 
 	fmt.Println("Connected")
