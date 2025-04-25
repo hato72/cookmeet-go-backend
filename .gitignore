@@ -2,7 +2,7 @@
 .env.backup
 backend/.env.dev
 backend/.env.dev2
-backend/.env.prod
+backend/.env.prd
 backend/public/
 backend/Dockerfile
 

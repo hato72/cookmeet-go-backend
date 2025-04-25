@@ -3,6 +3,9 @@ name: Super Lint Code Base
 # Documentation:
 # https://github.com/github/super-linter
 
+env:
+  FILTER_REGEX_EXCLUDE: '^(?!(.*\.md$|.*\.yml$|.*\.yaml$|.*\.json$|.*\.txt$|.*\.csv$))'
+
 on:
   push:
     branches: [ main ]
