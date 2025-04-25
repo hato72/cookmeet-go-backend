@@ -108,7 +108,7 @@ func (uc *UserController) Update(c echo.Context) error {
 	newPassword := c.FormValue("password")
 	iconFile, err := c.FormFile("icon")
 
-	//log.Print(UserID, newEmail, newName, newPassword, iconFile)
+	// log.Print(UserID, newEmail, newName, newPassword, iconFile)
 
 	if err != nil {
 		if err != http.ErrMissingFile {

@@ -251,7 +251,7 @@ func TestUpdate(t *testing.T) {
 			},
 			mockSetup: func(m *mockUserUsecase) {
 				m.On("Update",
-					//mock.AnythingOfType("model.User"),
+					// mock.AnythingOfType("model.User"),
 					mock.MatchedBy(func(user model.User) bool {
 						return user.ID == 1
 					}),

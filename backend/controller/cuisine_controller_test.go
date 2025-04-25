@@ -120,7 +120,7 @@ func TestGetAllCuisines(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectStatus, rec.Code) // レスポンスのステータスコードが期待通りか確認
 
-			if tc.expectStatus == http.StatusOK { //モックが期待通りの結果を返す場合
+			if tc.expectStatus == http.StatusOK { // モックが期待通りの結果を返す場合
 				var response []model.CuisineResponse
 				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
 					t.Fatalf("failed to unmarshal response: %v", err)

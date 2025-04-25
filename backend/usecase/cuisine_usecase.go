@@ -154,7 +154,7 @@ func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *string, ur
 	return rescuisine, nil
 }
 
-func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, userID uint, _ uint) (model.CuisineResponse, error) {
+func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, _ uint, _ uint) (model.CuisineResponse, error) {
 	// cuisine := model.Cuisine{}
 
 	if iconFile != nil {

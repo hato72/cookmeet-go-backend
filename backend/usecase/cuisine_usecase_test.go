@@ -36,8 +36,8 @@ func (m *MockCuisineRepository) CreateCuisine(cuisine *model.Cuisine) error {
 	return args.Error(0)
 }
 
-func (m *MockCuisineRepository) DeleteCuisine(UserID uint, cuisineID uint) error {
-	args := m.Called(UserID, cuisineID)
+func (m *MockCuisineRepository) DeleteCuisine(userID uint, cuisineID uint) error {
+	args := m.Called(userID, cuisineID)
 	return args.Error(0)
 }
 
