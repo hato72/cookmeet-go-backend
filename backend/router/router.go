@@ -60,7 +60,7 @@ func NewRouter(uc controller.IUserController, cc controller.ICuisineController) 
 	// c.PUT("/:cuisineID", cc.UpdateCuisine) // titleしか更新されない
 	c.DELETE("/:cuisineID", cc.DeleteCuisine)
 
-	c.PUT("/:cuisineID", cc.SetCuisine) //c uisineの更新
+	c.PUT("/:cuisineID", cc.SetCuisine) // cuisineの更新
 	// c.PUT("/url/:cuisineID", cc.AddURL)
 	return e
 }

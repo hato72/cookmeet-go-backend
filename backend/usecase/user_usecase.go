@@ -1,9 +1,9 @@
 package usecase
 
-//サインアップ、ログイン、更新処理を実装
-//サインアップでは、user_validatorを呼び出したのち、user_repositoryのユーザーテーブル作成メソッドを呼び出している
-//ログインでは、user_repositoryのemailでのユーザー検索メソッドを呼び出したのち、jwtトークンの検証を行っている
-//更新処理では、更新情報があればデータの更新を行っている
+// サインアップ、ログイン、更新処理を実装
+// サインアップでは、user_validatorを呼び出したのち、user_repositoryのユーザーテーブル作成メソッドを呼び出している
+// ログインでは、user_repositoryのemailでのユーザー検索メソッドを呼び出したのち、jwtトークンの検証を行っている
+// 更新処理では、更新情報があればデータの更新を行っている
 
 import (
 	"backend/model"
@@ -88,7 +88,7 @@ func (uu *userUsecase) Login(user model.User) (string, error) {
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil {
 		return "", ErrUserNotFound
 	}
-	err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password)) //パスワードの検証
+	err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password)) // パスワードの検証
 	if err != nil {
 		// エラーをラップすることで、errors.Isでの判定が成功するようにする
 		return "", fmt.Errorf("password mismatch: %w", ErrInvalidPassword)

@@ -39,8 +39,8 @@ func (m *mockCuisineUsecase) DeleteCuisine(userID uint, cuisineID uint) error {
 }
 
 // AddCuisineメソッドのシグネチャを変更
-func (m *mockCuisineUsecase) AddCuisine(cuisine model.Cuisine, IconURL *string, url string, title string) (model.CuisineResponse, error) {
-	args := m.Called(cuisine, IconURL, url, title)
+func (m *mockCuisineUsecase) AddCuisine(cuisine model.Cuisine, iconURL *string, url string, title string) (model.CuisineResponse, error) {
+	args := m.Called(cuisine, iconURL, url, title)
 	return args.Get(0).(model.CuisineResponse), args.Error(1)
 }
 
@@ -51,7 +51,7 @@ func (m *mockCuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipa
 }
 
 // Echo のコンテキストとモックユースケース、そしてテスト対象の Cuisine Controller を初期化
-func setupCuisineTest(t *testing.T) (*echo.Echo, *mockCuisineUsecase, ICuisineController) {
+func setupCuisineTest(_ *testing.T) (*echo.Echo, *mockCuisineUsecase, ICuisineController) {
 	e := echo.New()
 	mockUsecase := new(mockCuisineUsecase)
 	controller := NewCuisineController(mockUsecase)

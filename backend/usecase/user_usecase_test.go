@@ -26,7 +26,7 @@ func (m *MockUserRepository) CreateUser(user *model.User) error {
 	return args.Error(0)
 }
 
-func (m *MockUserRepository) GetUserById(UserID uint) (*model.User, error) {
+func (m *MockUserRepository) GetUserByID(UserID uint) (*model.User, error) {
 	args := m.Called(UserID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)

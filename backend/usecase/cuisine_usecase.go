@@ -35,9 +35,9 @@ func NewCuisineUsecase(tr repository.ICuisineRepository, tv validator.ICuisineVa
 	return &cuisineUsecase{tr, tv}
 }
 
-func (cu *cuisineUsecase) GetAllCuisines(UserID uint) ([]model.CuisineResponse, error) {
+func (cu *cuisineUsecase) GetAllCuisines(userID uint) ([]model.CuisineResponse, error) {
 	cuisines := []model.Cuisine{}
-	if err := cu.cr.GetAllCuisines(&cuisines, UserID); err != nil {
+	if err := cu.cr.GetAllCuisines(&cuisines, userID); err != nil {
 		return nil, err
 	}
 	resCuisines := []model.CuisineResponse{}
@@ -57,9 +57,9 @@ func (cu *cuisineUsecase) GetAllCuisines(UserID uint) ([]model.CuisineResponse, 
 	return resCuisines, nil
 }
 
-func (cu *cuisineUsecase) GetCuisineByID(UserID uint, cuisineID uint) (model.CuisineResponse, error) {
+func (cu *cuisineUsecase) GetCuisineByID(userID uint, cuisineID uint) (model.CuisineResponse, error) {
 	cuisine := model.Cuisine{}
-	if err := cu.cr.GetCuisineByID(&cuisine, UserID, cuisineID); err != nil {
+	if err := cu.cr.GetCuisineByID(&cuisine, userID, cuisineID); err != nil {
 		return model.CuisineResponse{}, err
 	}
 	rescuisine := model.CuisineResponse{
@@ -114,8 +114,8 @@ func (cu *cuisineUsecase) GetCuisineByID(UserID uint, cuisineID uint) (model.Cui
 // 	return rescuisine, nil
 // }
 
-func (cu *cuisineUsecase) DeleteCuisine(UserID uint, cuisineID uint) error {
-	if err := cu.cr.DeleteCuisine(UserID, cuisineID); err != nil {
+func (cu *cuisineUsecase) DeleteCuisine(userID uint, cuisineID uint) error {
+	if err := cu.cr.DeleteCuisine(userID, cuisineID); err != nil {
 		return err
 	}
 	return nil
@@ -154,7 +154,7 @@ func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *string, ur
 	return rescuisine, nil
 }
 
-func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, UserID uint, cuisineID uint) (model.CuisineResponse, error) {
+func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, UserID uint, _ uint) (model.CuisineResponse, error) {
 	// cuisine := model.Cuisine{}
 
 	if iconFile != nil {
@@ -175,9 +175,9 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 
 		ext := filepath.Ext(iconFile.Filename)
 
-		img_url := "cuisine_icons/" + hashValue + ext
+		imgURL := "cuisine_icons/" + hashValue + ext
 
-		dst, err := os.Create("./cuisine_images/" + img_url)
+		dst, err := os.Create("./cuisine_images/" + imgURL)
 		if err != nil {
 			return model.CuisineResponse{}, err
 		}
@@ -188,7 +188,7 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 			return model.CuisineResponse{}, nil
 		}
 
-		cuisine.IconURL = &img_url
+		cuisine.IconURL = &imgURL
 	}
 
 	if url != "" {
