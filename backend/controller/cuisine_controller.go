@@ -55,10 +55,12 @@ func (cc *cuisineController) GetCuisineByID(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	UserID := claims["user_id"]
-	// log.Print(UserID)
 
-	id := c.Param("cuisineID")       // リクエストパラメーターからcuisineIDを取得
-	cuisineID, _ := strconv.Atoi(id) // stringからintに
+	id := c.Param("cuisineID")
+	cuisineID, err := strconv.ParseUint(id, 10, 32) // Atoiの代わりにParseUintを使用
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "Invalid cuisine ID")
+	}
 	cuisineRes, err := cc.cu.GetCuisineByID(uint(UserID.(float64)), uint(cuisineID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -71,14 +73,16 @@ func (cc *cuisineController) DeleteCuisine(c echo.Context) error {
 	claims := user.Claims.(jwt.MapClaims)
 	UserID := claims["user_id"]
 	id := c.Param("cuisineID")
-	cuisineID, _ := strconv.Atoi(id)
-	// log.Print(UserID)
+	cuisineID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "Invalid cuisine ID")
+	}
 
 	cuisine := model.Cuisine{}
 	if err := c.Bind(&cuisine); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	err := cc.cu.DeleteCuisine(uint(UserID.(float64)), uint(cuisineID))
+	err = cc.cu.DeleteCuisine(uint(UserID.(float64)), uint(cuisineID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -144,7 +148,10 @@ func (cc *cuisineController) SetCuisine(c echo.Context) error {
 	claims := user.Claims.(jwt.MapClaims)
 	UserID := claims["user_id"]
 	id := c.Param("cuisineID")
-	cuisineID, _ := strconv.Atoi(id)
+	cuisineID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "Invalid cuisine ID")
+	}
 
 	url := c.FormValue("url")
 	iconFile, err := c.FormFile("icon")

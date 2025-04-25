@@ -59,7 +59,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer log.Println("Successfully Migrated")
+	defer func() {
+		log.Println("Migration process completed")
+	}()
 
 	// マイグレーション
 	if err := db.AutoMigrate(&model.User{}, &model.Cuisine{}); err != nil {

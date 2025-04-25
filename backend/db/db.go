@@ -68,7 +68,11 @@ func NewDB() *gorm.DB {
 }
 
 func CloseDB(db *gorm.DB) {
-	sqlDB, _ := db.DB()
+	sqlDB, err := db.DB()
+	if err != nil { // エラーチェックを追加
+		log.Printf("Error getting database instance: %v", err)
+		return
+	}
 	if err := sqlDB.Close(); err != nil {
 		log.Fatalln(err)
 	}
