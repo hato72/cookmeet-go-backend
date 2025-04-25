@@ -13,7 +13,7 @@ jobs:
   build:
     name: Super Lint Code Base
     runs-on: ubuntu-latest
-    timeout-minites: 20
+
     permissions:
       contents: read
       checks: write
