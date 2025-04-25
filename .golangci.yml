@@ -1,0 +1,22 @@
+run:
+  skip-dirs:
+    - vendor
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - gofmt
+    - golint
+    - govet
+    - errcheck
+    - staticcheck
+  disable:
+    - typecheck  # 異なるディレクトリの型チェックエラーを無視
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  golint:
+    min-confidence: 0.8
+  gofmt:
+    simplify: true

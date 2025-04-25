@@ -59,14 +59,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	success := false
 	defer func() {
-		log.Println("Migration process completed")
+		if success {
+			log.Println("Successfully Migrated")
+		} else {
+			log.Println("Migration failed")
+		}
 	}()
 
 	// マイグレーション
 	if err := db.AutoMigrate(&model.User{}, &model.Cuisine{}); err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
+		log.Printf("Failed to migrate database: %v", err)
+		os.Exit(1)
 	}
+
+	success = true
 
 	// 以下、従来どおりの初期化
 	userValidator := validator.NewUserValidator()
