@@ -55,7 +55,7 @@ func NewDB() *gorm.DB {
 	// 接続プールの設定
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("failed to get database connection:", err)
 	}
 
 	// 接続プールの最大数を設定

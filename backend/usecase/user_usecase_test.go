@@ -145,7 +145,10 @@ func TestLogin(t *testing.T) {
 			Password: "password123",
 		}
 		// 正しいパスワードのハッシュを生成
-		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), 10)
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password123"), 10)
+		if err != nil {
+			t.Fatal("failed to generate password hash:", err)
+		}
 		// モックの振る舞いを設定
 		mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), user.Email).
 			Run(func(args mock.Arguments) {
@@ -182,7 +185,11 @@ func TestLogin(t *testing.T) {
 			Password: "password12345",
 		}
 		// 正しいパスワードのハッシュを保持したユーザー情報を返す
-		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), 10)
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password123"), 10)
+		if err != nil {
+			t.Fatal("failed to generate password hash:", err)
+		}
+
 		mockRepo.On("GetUserByEmail", mock.AnythingOfType("*model.User"), misspassuser.Email).
 			Run(func(args mock.Arguments) {
 				arg := args.Get(0).(*model.User)
@@ -191,8 +198,10 @@ func TestLogin(t *testing.T) {
 				arg.Password = string(hashedPassword)
 			}).Return(nil).Once()
 
-		_, err := usecase.Login(misspassuser)
+		var token string                         // 新しい変数を宣言
+		token, err = usecase.Login(misspassuser) // := ではなく = を使用
 		assert.Error(t, err, "expected error for invalid password")
+		assert.Empty(t, token, "token should be empty when login fails")
 		assert.Truef(t, errors.Is(err, ErrInvalidPassword), "expected ErrInvalidPassword, but got: %v", err)
 	})
 
