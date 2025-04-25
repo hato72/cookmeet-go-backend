@@ -105,20 +105,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # - name: Login to Docker Hub
-    #   uses: docker/login-action@v3
-    #   with:
-    #     username: ${{ secrets.DOCKER_USERNAME }}
-    #     password: ${{ secrets.DOCKER_PASSWORD }}
-
-    # - name: Build and push Docker image
-    #   uses: docker/build-push-action@v5
-    #   with:
-    #     context: .
-    #     file: ./Dockerfile
-    #     push: true
-    #     tags: ${{ secrets.DOCKER_USERNAME }}/go-backend:latest  
-
     # GCP認証
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v1
@@ -129,6 +115,7 @@ jobs:
     - name: Set up gcloud CLI
       uses: google-github-actions/setup-gcloud@v1
 
+    # 権限を付与
     - name: Configure Docker for Artifact Registry
       run: |
         gcloud auth configure-docker asia-southeast1-docker.pkg.dev --quiet
@@ -142,14 +129,6 @@ jobs:
         push: true
         tags: asia-southeast1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ env.TAG }}
 
-    # - name: Build and push Docker image
-    #   uses: docker/build-push-action@v5
-    #   with:
-    #     context: .
-    #     file: ./Dockerfile
-    #     push: true
-    #     tags: ${{ secrets.DOCKER_USERNAME }}/go-backend:latest
-
     # Cloud Run へデプロイ
     - name: Deploy to Cloud Run
       run: |
@@ -159,8 +138,7 @@ jobs:
           --platform managed \
           --allow-unauthenticated \
 
-    # ここにデプロイ先のサービスに応じたデプロイステップを追加
-    # 例: Render, Heroku, GCP等へのデプロイ設定
+    # Renderへのデプロイ
     # - name: Deploy to Render 
     #   uses: ttskch/render-deploy@v1.0.0
     #   with:
@@ -168,12 +146,3 @@ jobs:
     #     service-id: ${{ secrets.RENDER_SERVICE_ID }}
     #     interval: 20 # optional
     #     timeout: 500 # optional
-
-    # Cloud Runへのデプロイ
-    # - name: Deploy to Cloud Run
-    #   run: |
-    #     gcloud run deploy cookmeet-go-backend \
-    #       --image ${{ secrets.DOCKER_USERNAME }}/go-backend:latest \
-    #       --platform managed \
-    #       --region asia-southeast1 \
-    #       --allow-unauthenticated
