@@ -8,7 +8,7 @@ COPY ./backend .
 # ビルド時のメモリ使用量を抑えるフラグを追加
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -a -installsuffix cgo -o main .
 
-FROM alpine:latest
+FROM alpine:3.19
 WORKDIR /root/
 RUN apk --no-cache add ca-certificates tzdata && \
     rm -rf /var/cache/apk/*
