@@ -45,7 +45,7 @@ func (cu *cuisineUsecase) GetAllCuisines(userId uint) ([]model.CuisineResponse, 
 		t := model.CuisineResponse{
 			ID:        v.ID,
 			Title:     v.Title,
-			IconUrl:   v.IconUrl,
+			IconURL:   v.IconURL,
 			URL:       v.URL,
 			Comment:   v.Comment,
 			CreatedAt: v.CreatedAt,
@@ -65,7 +65,7 @@ func (cu *cuisineUsecase) GetCuisineById(userId uint, cuisineId uint) (model.Cui
 	rescuisine := model.CuisineResponse{
 		ID:        cuisine.ID,
 		Title:     cuisine.Title,
-		IconUrl:   cuisine.IconUrl,
+		IconURL:   cuisine.IconURL,
 		URL:       cuisine.URL,
 		Comment:   cuisine.Comment,
 		CreatedAt: cuisine.CreatedAt,
@@ -85,7 +85,7 @@ func (cu *cuisineUsecase) GetCuisineById(userId uint, cuisineId uint) (model.Cui
 // 	rescuisine := model.CuisineResponse{
 // 		ID:        cuisine.ID,
 // 		Title:     cuisine.Title,
-// 		IconUrl:   cuisine.IconUrl,
+// 		IconURL:   cuisine.IconURL,
 // 		URL:       cuisine.URL,
 // 		CreatedAt: cuisine.CreatedAt,
 // 		UpdatedAt: cuisine.UpdatedAt,
@@ -105,7 +105,7 @@ func (cu *cuisineUsecase) GetCuisineById(userId uint, cuisineId uint) (model.Cui
 // 	rescuisine := model.CuisineResponse{
 // 		ID:        cuisine.ID,
 // 		Title:     cuisine.Title,
-// 		IconUrl:   cuisine.IconUrl,
+// 		IconURL:   cuisine.IconURL,
 // 		URL:       cuisine.URL,
 // 		CreatedAt: cuisine.CreatedAt,
 // 		UpdatedAt: cuisine.UpdatedAt,
@@ -123,7 +123,7 @@ func (cu *cuisineUsecase) DeleteCuisine(userId uint, cuisineId uint) error {
 
 func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *string, url string, title string) (model.CuisineResponse, error) {
 	if iconFile != nil {
-		cuisine.IconUrl = iconFile
+		cuisine.IconURL = iconFile
 	}
 
 	if url != "" {
@@ -143,7 +143,7 @@ func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *string, ur
 	rescuisine := model.CuisineResponse{
 		ID:        cuisine.ID,
 		Title:     cuisine.Title,
-		IconUrl:   cuisine.IconUrl,
+		IconURL:   cuisine.IconURL,
 		URL:       cuisine.URL,
 		Comment:   cuisine.Comment, // コメントを追加
 		CreatedAt: cuisine.CreatedAt,
@@ -188,7 +188,7 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 			return model.CuisineResponse{}, nil
 		}
 
-		cuisine.IconUrl = &img_url
+		cuisine.IconURL = &img_url
 	}
 
 	if url != "" {
@@ -202,7 +202,7 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 	updatedCuisine := model.Cuisine{
 		ID:        cuisine.ID,
 		Title:     title,
-		IconUrl:   cuisine.IconUrl,
+		IconURL:   cuisine.IconURL,
 		URL:       url,
 		Comment:   cuisine.Comment,
 		CreatedAt: cuisine.CreatedAt,
@@ -220,7 +220,7 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 	rescuisine := model.CuisineResponse{
 		ID:        updatedCuisine.ID,
 		Title:     cuisine.Title,
-		IconUrl:   cuisine.IconUrl,
+		IconURL:   cuisine.IconURL,
 		URL:       cuisine.URL,
 		Comment:   cuisine.Comment,
 		CreatedAt: cuisine.CreatedAt,

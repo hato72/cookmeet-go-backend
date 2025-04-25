@@ -39,8 +39,8 @@ func (m *mockCuisineUsecase) DeleteCuisine(userId uint, cuisineId uint) error {
 }
 
 // AddCuisineメソッドのシグネチャを変更
-func (m *mockCuisineUsecase) AddCuisine(cuisine model.Cuisine, iconUrl *string, url string, title string) (model.CuisineResponse, error) {
-	args := m.Called(cuisine, iconUrl, url, title)
+func (m *mockCuisineUsecase) AddCuisine(cuisine model.Cuisine, IconURL *string, url string, title string) (model.CuisineResponse, error) {
+	args := m.Called(cuisine, IconURL, url, title)
 	return args.Get(0).(model.CuisineResponse), args.Error(1)
 }
 

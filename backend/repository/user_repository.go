@@ -78,8 +78,8 @@ func (ur *userRepository) UpdateUser(user *model.User) error {
 		}
 	}
 
-	if user.IconUrl != nil {
-		if err := dbSession.Model(user).Where("id = ? ", user.ID).Update("icon_url", user.IconUrl).Error; err != nil {
+	if user.IconURL != nil {
+		if err := dbSession.Model(user).Where("id = ? ", user.ID).Update("icon_url", user.IconURL).Error; err != nil {
 			return err
 		}
 	}

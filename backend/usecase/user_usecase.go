@@ -75,7 +75,7 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 		ID:      newUser.ID,
 		Name:    newUser.Name,
 		Email:   newUser.Email,
-		IconUrl: newUser.IconUrl,
+		IconURL: newUser.IconURL,
 	}
 	return resUser, nil
 }
@@ -132,9 +132,9 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 
 		ext := filepath.Ext(iconFile.Filename)
 
-		iconUrl := "icons/" + hashValue + ext
+		IconURL := "icons/" + hashValue + ext
 
-		dst, err := os.Create("./user_images/" + iconUrl)
+		dst, err := os.Create("./user_images/" + IconURL)
 		if err != nil {
 			return model.UserResponse{}, err
 		}
@@ -145,7 +145,7 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 			return model.UserResponse{}, nil
 		}
 
-		user.IconUrl = &iconUrl
+		user.IconURL = &IconURL
 
 	}
 
@@ -154,7 +154,7 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 		Name:     newName,
 		Email:    newEmail,
 		Password: newPassword,
-		IconUrl:  user.IconUrl,
+		IconURL:  user.IconURL,
 	}
 	//log.Print("updateUser:", updatedUser)
 
@@ -166,7 +166,7 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 		ID:      updatedUser.ID,
 		Name:    updatedUser.Name,
 		Email:   updatedUser.Email,
-		IconUrl: updatedUser.IconUrl,
+		IconURL: updatedUser.IconURL,
 	}
 	//log.Print("resUser:", resUser)
 

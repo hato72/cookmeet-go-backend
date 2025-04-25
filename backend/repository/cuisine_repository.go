@@ -68,8 +68,8 @@ func (cr *cuisineRepository) DeleteCuisine(userId uint, cuisineId uint) error {
 }
 
 func (cr *cuisineRepository) SettingCuisine(cuisine *model.Cuisine) error {
-	if cuisine.IconUrl != nil {
-		icon_result := cr.db.Model(cuisine).Clauses(clause.Returning{}).Where("id=? AND user_id=?", cuisine.ID, cuisine.UserId).Update("icon_url", cuisine.IconUrl)
+	if cuisine.IconURL != nil {
+		icon_result := cr.db.Model(cuisine).Clauses(clause.Returning{}).Where("id=? AND user_id=?", cuisine.ID, cuisine.UserId).Update("icon_url", cuisine.IconURL)
 		if icon_result.Error != nil {
 			return icon_result.Error
 		}

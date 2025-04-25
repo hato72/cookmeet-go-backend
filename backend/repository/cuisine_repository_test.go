@@ -200,7 +200,7 @@ func TestSettingCuisine(t *testing.T) {
 	}
 	assert.NoError(t, repo.CreateCuisine(&cuisine))
 
-	iconURL := "https://example.com/icon.png"
+	IconURL := "https://example.com/icon.png"
 	newURL := "https://example.com/new"
 
 	testCases := []struct {
@@ -213,7 +213,7 @@ func TestSettingCuisine(t *testing.T) {
 			update: model.Cuisine{
 				ID:      cuisine.ID,
 				UserId:  user.ID,
-				IconUrl: &iconURL,
+				IconURL: &IconURL,
 			},
 			wantErr: false,
 		},
@@ -240,8 +240,8 @@ func TestSettingCuisine(t *testing.T) {
 				var updated model.Cuisine
 				db.First(&updated, cuisine.ID)
 
-				if tc.update.IconUrl != nil {
-					assert.Equal(t, *tc.update.IconUrl, *updated.IconUrl)
+				if tc.update.IconURL != nil {
+					assert.Equal(t, *tc.update.IconURL, *updated.IconURL)
 				}
 				if tc.update.URL != "" {
 					assert.Equal(t, tc.update.URL, updated.URL)

@@ -129,7 +129,7 @@ func (cc *cuisineController) AddCuisine(c echo.Context) error {
 	cuisine.Comment = comment // コメントをセット
 	// 画像がアップロードされた場合のみURLをセット
 	if imageURL != "" {
-		cuisine.IconUrl = &imageURL // Cloud StorageのURLをセット
+		cuisine.IconURL = &imageURL // Cloud StorageのURLをセット
 	}
 
 	cuisineRes, err := cc.cu.AddCuisine(cuisine, &imageURL, url, title)
@@ -172,7 +172,7 @@ func (cc *cuisineController) SetCuisine(c echo.Context) error {
 	cuisine.CreatedAt = cuisineRes.CreatedAt
 	cuisine.UpdatedAt = cuisineRes.UpdatedAt
 	cuisine.Title = cuisineRes.Title
-	cuisine.IconUrl = cuisineRes.IconUrl
+	cuisine.IconURL = cuisineRes.IconURL
 	cuisine.URL = cuisineRes.URL
 
 	newcuisineRes, err := cc.cu.SetCuisine(cuisine, iconFile, url, title, uint(userId.(float64)), uint(cuisineId))
