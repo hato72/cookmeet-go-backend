@@ -71,7 +71,7 @@ func main() {
 	// マイグレーション
 	if err := db.AutoMigrate(&model.User{}, &model.Cuisine{}); err != nil {
 		log.Printf("Failed to migrate database: %v", err)
-		os.Exit(1)
+		return
 	}
 
 	success = true

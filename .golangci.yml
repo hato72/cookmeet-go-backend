@@ -18,5 +18,21 @@ linters-settings:
     check-shadowing: true
   golint:
     min-confidence: 0.8
-  gofmt:
-    simplify: true
+
+run:
+  timeout: 5m
+  tests: false
+  # 全てのパッケージを個別に解析
+  skip-dirs-use-default: false
+  allow-parallel-runners: true
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
