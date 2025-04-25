@@ -14,6 +14,11 @@ jobs:
     name: Super Lint Code Base
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      checks: write
+      statuses: write 
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -27,13 +32,13 @@ jobs:
       - name: Install dependencies
         run: |
           cd backend
+          go mod tidy
           go mod download
 
       - name: Lint Code Base
         uses: super-linter/super-linter@v7.3.0
         env:
           VALIDATE_ALL_CODEBASE: true
-          # 追加: Markdownの検証を無効化
           VALIDATE_MARKDOWN: false
           VALIDATE_ENV: false
           VALIDATE_CHECKOV: false
@@ -42,7 +47,7 @@ jobs:
           VALIDATE_JSCPD: false
           VALIDATE_MARKDOWN_PRETTIER: false
           VALIDATE_GO: false
-          # VALIDATE_GO_MODULES: false
+          GO_MODULES_TIMEOUT: "300s"
           VALIDATE_YAML: false
           VALIDATE_YAML_PRETTIER: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
