@@ -23,8 +23,8 @@ import (
 type ICuisineController interface {
 	GetAllCuisines(c echo.Context) error
 	GetCuisineByID(c echo.Context) error
-	//CreateCuisine(c echo.Context) error
-	//UpdateCuisine(c echo.Context) error
+	// CreateCuisine(c echo.Context) error
+	// UpdateCuisine(c echo.Context) error
 	DeleteCuisine(c echo.Context) error
 	AddCuisine(c echo.Context) error
 	SetCuisine(c echo.Context) error

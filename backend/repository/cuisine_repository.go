@@ -31,15 +31,15 @@ func NewCuisineRepository(db *gorm.DB) ICuisineRepository { // コンストラ�
 	return &cuisineRepository{db}
 }
 
-func (cr *cuisineRepository) GetAllCuisines(cuisines *[]model.Cuisine, UserID uint) error {
-	if err := cr.db.Joins("User").Where("user_id=?", UserID).Order("created_at").Find(cuisines).Error; err != nil { // 料理の一覧から引数のユーザーidに一致する料理を取得する　その時、作成日時があたらしいものが末尾に来るようにする
+func (cr *cuisineRepository) GetAllCuisines(cuisines *[]model.Cuisine, userID uint) error {
+	if err := cr.db.Joins("User").Where("user_id=?", userID).Order("created_at").Find(cuisines).Error; err != nil { // 料理の一覧から引数のユーザーidに一致する料理を取得する　その時、作成日時があたらしいものが末尾に来るようにする
 		return err
 	}
 	return nil
 }
 
-func (cr *cuisineRepository) GetCuisineByID(cuisine *model.Cuisine, UserID uint, cuisineID uint) error {
-	result := cr.db.Joins("User").Where("user_id=? AND cuisines.id=?", UserID, cuisineID).First(cuisine)
+func (cr *cuisineRepository) GetCuisineByID(cuisine *model.Cuisine, userID uint, cuisineID uint) error {
+	result := cr.db.Joins("User").Where("user_id=? AND cuisines.id=?", userID, cuisineID).First(cuisine)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -56,8 +56,8 @@ func (cr *cuisineRepository) CreateCuisine(cuisine *model.Cuisine) error {
 	return cr.db.Create(cuisine).Error
 }
 
-func (cr *cuisineRepository) DeleteCuisine(UserID uint, cuisineID uint) error {
-	result := cr.db.Where("id=? AND user_id=?", cuisineID, UserID).Delete(&model.Cuisine{})
+func (cr *cuisineRepository) DeleteCuisine(userID uint, cuisineID uint) error {
+	result := cr.db.Where("id=? AND user_id=?", cuisineID, userID).Delete(&model.Cuisine{})
 	if result.Error != nil {
 		return result.Error
 	}

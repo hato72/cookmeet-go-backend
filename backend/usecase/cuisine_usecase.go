@@ -17,11 +17,11 @@ import (
 )
 
 type ICuisineUsecase interface {
-	GetAllCuisines(UserID uint) ([]model.CuisineResponse, error)
-	GetCuisineByID(UserID uint, cuisineID uint) (model.CuisineResponse, error)
+	GetAllCuisines(userID uint) ([]model.CuisineResponse, error)
+	GetCuisineByID(userID uint, cuisineID uint) (model.CuisineResponse, error)
 	// CreateCuisine(cuisine model.Cuisine) (model.CuisineResponse, error)
-	// UpdateCuisine(cuisine model.Cuisine, UserID uint, cuisineID uint) (model.CuisineResponse, error)
-	DeleteCuisine(UserID uint, cuisineID uint) error
+	// UpdateCuisine(cuisine model.Cuisine, userID uint, cuisineID uint) (model.CuisineResponse, error)
+	DeleteCuisine(userID uint, cuisineID uint) error
 	AddCuisine(cuisine model.Cuisine, iconFile *string, url string, title string) (model.CuisineResponse, error)
 	SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, UserID uint, cuisineID uint) (model.CuisineResponse, error)
 }
@@ -154,7 +154,7 @@ func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *string, ur
 	return rescuisine, nil
 }
 
-func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, UserID uint, _ uint) (model.CuisineResponse, error) {
+func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, userID uint, _ uint) (model.CuisineResponse, error) {
 	// cuisine := model.Cuisine{}
 
 	if iconFile != nil {

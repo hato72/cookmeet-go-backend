@@ -15,16 +15,16 @@ type MockCuisineRepository struct {
 	mock.Mock
 }
 
-func (m *MockCuisineRepository) GetAllCuisines(cuisines *[]model.Cuisine, UserID uint) error {
-	args := m.Called(cuisines, UserID)
+func (m *MockCuisineRepository) GetAllCuisines(cuisines *[]model.Cuisine, userID uint) error {
+	args := m.Called(cuisines, userID)
 	if args.Get(0) != nil {
 		*cuisines = args.Get(0).([]model.Cuisine)
 	}
 	return args.Error(1)
 }
 
-func (m *MockCuisineRepository) GetCuisineByID(cuisine *model.Cuisine, UserID uint, cuisineID uint) error {
-	args := m.Called(cuisine, UserID, cuisineID)
+func (m *MockCuisineRepository) GetCuisineByID(cuisine *model.Cuisine, userID uint, cuisineID uint) error {
+	args := m.Called(cuisine, userID, cuisineID)
 	if args.Get(0) != nil {
 		*cuisine = args.Get(0).(model.Cuisine)
 	}

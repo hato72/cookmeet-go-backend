@@ -44,7 +44,7 @@ func TestNewDB(t *testing.T) {
 				t.Errorf("Failed to get SQL database: %v", err)
 			}
 
-			//データベースネットワークの確認
+			// データベースネットワークの確認
 			err = sqlDB.Ping()
 			if err != nil {
 				t.Errorf("Database ping failed: %v", err)
