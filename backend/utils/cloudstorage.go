@@ -31,12 +31,15 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 	w.ContentType = "image/jpeg" // 必要に応じて変更
 	w.CacheControl = "public, max-age=86400"
 
-	if _, err := io.Copy(w, file); err != nil {
-		return "", fmt.Errorf("failed to write file to cloud storage: %v", err)
-	}
-	if err := w.Close(); err != nil {
-		return "", fmt.Errorf("failed to close writer: %v", err)
-	}
+	// シャドウイングを避けるため、別の変数名を使用
+    if _, copyErr := io.Copy(w, file); copyErr != nil {
+        return "", fmt.Errorf("failed to write file to cloud storage: %v", copyErr)
+    }
+    
+    // シャドウイングを避けるため、別の変数名を使用
+    if closeErr := w.Close(); closeErr != nil {
+        return "", fmt.Errorf("failed to close writer: %v", closeErr)
+    }
 
 	// 公開URLを生成
 	// publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)

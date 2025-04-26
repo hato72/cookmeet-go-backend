@@ -79,13 +79,13 @@ func (cc *cuisineController) DeleteCuisine(c echo.Context) error {
 	}
 
 	cuisine := model.Cuisine{}
-	if err := c.Bind(&cuisine); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-	err = cc.cu.DeleteCuisine(uint(UserID.(float64)), uint(cuisineID))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	if bindErr := c.Bind(&cuisine); bindErr != nil {
+        return c.JSON(http.StatusBadRequest, bindErr.Error())
+    }
+
+    if deleteErr := cc.cu.DeleteCuisine(uint(UserID.(float64)), uint(cuisineID)); deleteErr != nil {
+        return c.JSON(http.StatusInternalServerError, deleteErr.Error())
+    }
 	return c.NoContent(http.StatusNoContent)
 }
 
@@ -108,10 +108,10 @@ func (cc *cuisineController) AddCuisine(c echo.Context) error {
 	var imageURL string
 	if iconFile != nil {
 		// ファイルを読み込みbase64エンコード
-		src, err := iconFile.Open()
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
+		src, openErr := iconFile.Open()
+        if openErr != nil {
+            return c.JSON(http.StatusInternalServerError, openErr.Error())
+        }
 		defer src.Close()
 
 		UserIDStr := strconv.FormatUint(uint64(UserID.(float64)), 10)
@@ -168,9 +168,9 @@ func (cc *cuisineController) SetCuisine(c echo.Context) error {
 	// cuisine.URL = url
 	// cuisine.URL = url
 
-	if err := c.Bind(&cuisine); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	if bindErr := c.Bind(&cuisine); bindErr != nil {
+        return c.JSON(http.StatusBadRequest, bindErr.Error())
+    }
 
 	cuisineRes, err := cc.cu.GetCuisineByID(uint(UserID.(float64)), uint(cuisineID))
 	if err != nil {
