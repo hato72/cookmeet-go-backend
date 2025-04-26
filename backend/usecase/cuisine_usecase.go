@@ -10,10 +10,12 @@ import (
 	"backend/validator"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type ICuisineUsecase interface {
@@ -177,10 +179,11 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 
 		imgURL := "cuisine_icons/" + hashValue + ext
 
-		dst, err := os.Create("./cuisine_images/" + imgURL)
-		if err != nil {
-			return model.CuisineResponse{}, err
+		safeImgURL := filepath.Clean(imgURL)
+		if strings.Contains(safeImgURL, "..") {
+			return model.CuisineResponse{}, fmt.Errorf("invalid path")
 		}
+		dst, err := os.Create(filepath.Join("./cuisine_images", safeImgURL))
 
 		defer dst.Close()
 

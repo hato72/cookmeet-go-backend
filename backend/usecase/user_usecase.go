@@ -134,10 +134,11 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 
 		IconURL := "icons/" + hashValue + ext
 
-		dst, err := os.Create("./user_images/" + IconURL)
-		if err != nil {
-			return model.UserResponse{}, err
+		safeIconURL := filepath.Clean(IconURL)
+		if strings.Contains(safeIconURL, "..") {
+			return model.UserResponse{}, fmt.Errorf("invalid path")
 		}
+		dst, err := os.Create(filepath.Join("./user_images", safeIconURL))
 
 		defer dst.Close()
 
