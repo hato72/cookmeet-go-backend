@@ -137,7 +137,7 @@ jobs:
 
   deploy:
     name: Deploy to Production
-    needs: [lint]
+    needs: [test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
