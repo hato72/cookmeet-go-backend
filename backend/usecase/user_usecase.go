@@ -134,12 +134,19 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 
 		IconURL := "icons/" + hashValue + ext
 
+		const baseDir = "./user_images"
+
 		safeIconURL := filepath.Clean(IconURL)
-		if strings.Contains(safeIconURL, "..") {
-			return model.UserResponse{}, fmt.Errorf("invalid path")
+		if !strings.HasPrefix(filepath.Clean(filepath.Join(baseDir, safeIconURL)), baseDir) {
+			return model.UserResponse{}, fmt.Errorf("invalid path: potential directory traversal")
 		}
 
-		dst, err := os.Create(filepath.Join("./user_images", safeIconURL))
+		if err := os.MkdirAll(baseDir, 0755); err != nil {
+			return model.UserResponse{}, fmt.Errorf("failed to create directory: %v", err)
+		}
+
+		fullPath := filepath.Join(baseDir, safeIconURL)
+		dst, err := os.OpenFile(fullPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			return model.UserResponse{}, err
 		}
