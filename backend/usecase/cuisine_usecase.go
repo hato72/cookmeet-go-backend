@@ -183,9 +183,16 @@ func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.
 		if strings.Contains(safeImgURL, "..") {
 			return model.CuisineResponse{}, fmt.Errorf("invalid path")
 		}
-		dst, err := os.Create(filepath.Join("./cuisine_images", safeImgURL))
 
-		defer dst.Close()
+		dst, err := os.Create(filepath.Join("./cuisine_images", safeImgURL))
+		if err != nil {
+			return model.CuisineResponse{}, err
+		}
+		defer func() {
+			if cerr := dst.Close(); cerr != nil && err == nil {
+				err = cerr
+			}
+		}()
 
 		if _, err := dst.Write(data); err != nil {
 			return model.CuisineResponse{}, nil

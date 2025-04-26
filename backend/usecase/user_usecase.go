@@ -138,9 +138,16 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 		if strings.Contains(safeIconURL, "..") {
 			return model.UserResponse{}, fmt.Errorf("invalid path")
 		}
-		dst, err := os.Create(filepath.Join("./user_images", safeIconURL))
 
-		defer dst.Close()
+		dst, err := os.Create(filepath.Join("./user_images", safeIconURL))
+		if err != nil {
+			return model.UserResponse{}, err
+		}
+		defer func() {
+			if cerr := dst.Close(); cerr != nil && err == nil {
+				err = cerr
+			}
+		}()
 
 		if _, err := dst.Write(data); err != nil {
 			return model.UserResponse{}, nil
