@@ -27,7 +27,7 @@ type ICuisineController interface {
 	// UpdateCuisine(c echo.Context) error
 	DeleteCuisine(c echo.Context) error
 	AddCuisine(c echo.Context) error
-	SetCuisine(c echo.Context) error
+	// SetCuisine(c echo.Context) error
 }
 
 type cuisineController struct {
@@ -143,48 +143,48 @@ func (cc *cuisineController) AddCuisine(c echo.Context) error {
 	return c.JSON(http.StatusOK, cuisineRes)
 }
 
-func (cc *cuisineController) SetCuisine(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	UserID := claims["user_id"]
-	id := c.Param("cuisineID")
-	cuisineID, err := strconv.ParseUint(id, 10, 32)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Invalid cuisine ID")
-	}
+// func (cc *cuisineController) SetCuisine(c echo.Context) error {
+// 	user := c.Get("user").(*jwt.Token)
+// 	claims := user.Claims.(jwt.MapClaims)
+// 	UserID := claims["user_id"]
+// 	id := c.Param("cuisineID")
+// 	cuisineID, err := strconv.ParseUint(id, 10, 32)
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, "Invalid cuisine ID")
+// 	}
 
-	url := c.FormValue("url")
-	iconFile, err := c.FormFile("icon")
-	title := c.FormValue("title")
-	if err != nil {
-		if err != http.ErrMissingFile {
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-	}
+// 	url := c.FormValue("url")
+// 	iconFile, err := c.FormFile("icon")
+// 	title := c.FormValue("title")
+// 	if err != nil {
+// 		if err != http.ErrMissingFile {
+// 			return c.JSON(http.StatusBadRequest, err.Error())
+// 		}
+// 	}
 
-	cuisine := model.Cuisine{}
-	cuisine.ID = uint(cuisineID)
-	cuisine.UserID = uint(UserID.(float64))
-	// cuisine.URL = url
-	// cuisine.URL = url
+// 	cuisine := model.Cuisine{}
+// 	cuisine.ID = uint(cuisineID)
+// 	cuisine.UserID = uint(UserID.(float64))
+// 	// cuisine.URL = url
+// 	// cuisine.URL = url
 
-	if bindErr := c.Bind(&cuisine); bindErr != nil {
-		return c.JSON(http.StatusBadRequest, bindErr.Error())
-	}
+// 	if bindErr := c.Bind(&cuisine); bindErr != nil {
+// 		return c.JSON(http.StatusBadRequest, bindErr.Error())
+// 	}
 
-	cuisineRes, err := cc.cu.GetCuisineByID(uint(UserID.(float64)), uint(cuisineID))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-	cuisine.CreatedAt = cuisineRes.CreatedAt
-	cuisine.UpdatedAt = cuisineRes.UpdatedAt
-	cuisine.Title = cuisineRes.Title
-	cuisine.IconURL = cuisineRes.IconURL
-	cuisine.URL = cuisineRes.URL
+// 	cuisineRes, err := cc.cu.GetCuisineByID(uint(UserID.(float64)), uint(cuisineID))
+// 	if err != nil {
+// 		return c.JSON(http.StatusInternalServerError, err.Error())
+// 	}
+// 	cuisine.CreatedAt = cuisineRes.CreatedAt
+// 	cuisine.UpdatedAt = cuisineRes.UpdatedAt
+// 	cuisine.Title = cuisineRes.Title
+// 	cuisine.IconURL = cuisineRes.IconURL
+// 	cuisine.URL = cuisineRes.URL
 
-	newcuisineRes, err := cc.cu.SetCuisine(cuisine, iconFile, url, title, uint(UserID.(float64)), uint(cuisineID))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-	return c.JSON(http.StatusOK, newcuisineRes)
-}
+// 	newcuisineRes, err := cc.cu.SetCuisine(cuisine, iconFile, url, title, uint(UserID.(float64)), uint(cuisineID))
+// 	if err != nil {
+// 		return c.JSON(http.StatusInternalServerError, err.Error())
+// 	}
+// 	return c.JSON(http.StatusOK, newcuisineRes)
+// }

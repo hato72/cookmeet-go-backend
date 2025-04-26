@@ -8,14 +8,6 @@ import (
 	"backend/model"
 	"backend/repository"
 	"backend/validator"
-	"crypto/sha256"
-	"encoding/hex"
-	"fmt"
-	"io"
-	"mime/multipart"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 type ICuisineUsecase interface {
@@ -25,7 +17,7 @@ type ICuisineUsecase interface {
 	// UpdateCuisine(cuisine model.Cuisine, userID uint, cuisineID uint) (model.CuisineResponse, error)
 	DeleteCuisine(userID uint, cuisineID uint) error
 	AddCuisine(cuisine model.Cuisine, iconFile *string, url string, title string) (model.CuisineResponse, error)
-	SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, UserID uint, cuisineID uint) (model.CuisineResponse, error)
+	// SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, UserID uint, cuisineID uint) (model.CuisineResponse, error)
 }
 
 type cuisineUsecase struct {
@@ -156,105 +148,105 @@ func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *string, ur
 	return rescuisine, nil
 }
 
-func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, _ uint, _ uint) (model.CuisineResponse, error) {
-	// cuisine := model.Cuisine{}
+// func (cu *cuisineUsecase) SetCuisine(cuisine model.Cuisine, iconFile *multipart.FileHeader, url string, title string, _ uint, _ uint) (model.CuisineResponse, error) {
+// 	// cuisine := model.Cuisine{}
 
-	if iconFile != nil {
-		src, err := iconFile.Open()
-		if err != nil {
-			return model.CuisineResponse{}, err
-		}
-		defer src.Close()
+// 	if iconFile != nil {
+// 		src, err := iconFile.Open()
+// 		if err != nil {
+// 			return model.CuisineResponse{}, err
+// 		}
+// 		defer src.Close()
 
-		data, err := io.ReadAll(src)
-		if err != nil {
-			return model.CuisineResponse{}, err
-		}
+// 		data, err := io.ReadAll(src)
+// 		if err != nil {
+// 			return model.CuisineResponse{}, err
+// 		}
 
-		hasher := sha256.New()
-		hasher.Write(data)
-		hashValue := hex.EncodeToString(hasher.Sum(nil))
+// 		hasher := sha256.New()
+// 		hasher.Write(data)
+// 		hashValue := hex.EncodeToString(hasher.Sum(nil))
 
-		ext := filepath.Ext(iconFile.Filename)
+// 		ext := filepath.Ext(iconFile.Filename)
 
-		imgURL := "cuisine_icons/" + hashValue + ext
+// 		imgURL := "cuisine_icons/" + hashValue + ext
 
-		safeImgURL := filepath.Clean(imgURL)
-		if strings.Contains(safeImgURL, "..") {
-			return model.CuisineResponse{}, fmt.Errorf("invalid path")
-		}
+// 		safeImgURL := filepath.Clean(imgURL)
+// 		if strings.Contains(safeImgURL, "..") {
+// 			return model.CuisineResponse{}, fmt.Errorf("invalid path")
+// 		}
 
-		dst, err := os.Create(filepath.Join("./cuisine_images", safeImgURL))
-		if err != nil {
-			return model.CuisineResponse{}, err
-		}
-		defer func() {
-			if cerr := dst.Close(); cerr != nil && err == nil {
-				err = cerr
-			}
-		}()
+// 		dst, err := os.Create(filepath.Join("./cuisine_images", safeImgURL))
+// 		if err != nil {
+// 			return model.CuisineResponse{}, err
+// 		}
+// 		defer func() {
+// 			if cerr := dst.Close(); cerr != nil && err == nil {
+// 				err = cerr
+// 			}
+// 		}()
 
-		if _, err := dst.Write(data); err != nil {
-			return model.CuisineResponse{}, nil
-		}
+// 		if _, err := dst.Write(data); err != nil {
+// 			return model.CuisineResponse{}, nil
+// 		}
 
-		cuisine.IconURL = &imgURL
-	}
+// 		cuisine.IconURL = &imgURL
+// 	}
 
-	if url != "" {
-		cuisine.URL = url
-	}
+// 	if url != "" {
+// 		cuisine.URL = url
+// 	}
 
-	if title != "" {
-		cuisine.Title = title
-	}
+// 	if title != "" {
+// 		cuisine.Title = title
+// 	}
 
-	updatedCuisine := model.Cuisine{
-		ID:        cuisine.ID,
-		Title:     title,
-		IconURL:   cuisine.IconURL,
-		URL:       url,
-		Comment:   cuisine.Comment,
-		CreatedAt: cuisine.CreatedAt,
-		UpdatedAt: cuisine.UpdatedAt,
-		User:      cuisine.User,
-		UserID:    cuisine.UserID,
-	}
-	// log.Print("cuisine", cuisine)
-	// log.Print("updatedCuisine", updatedCuisine)
+// 	updatedCuisine := model.Cuisine{
+// 		ID:        cuisine.ID,
+// 		Title:     title,
+// 		IconURL:   cuisine.IconURL,
+// 		URL:       url,
+// 		Comment:   cuisine.Comment,
+// 		CreatedAt: cuisine.CreatedAt,
+// 		UpdatedAt: cuisine.UpdatedAt,
+// 		User:      cuisine.User,
+// 		UserID:    cuisine.UserID,
+// 	}
+// 	// log.Print("cuisine", cuisine)
+// 	// log.Print("updatedCuisine", updatedCuisine)
 
-	if err := cu.cr.SettingCuisine(&updatedCuisine); err != nil {
-		return model.CuisineResponse{}, err
-	}
+// 	if err := cu.cr.SettingCuisine(&updatedCuisine); err != nil {
+// 		return model.CuisineResponse{}, err
+// 	}
 
-	rescuisine := model.CuisineResponse{
-		ID:        updatedCuisine.ID,
-		Title:     cuisine.Title,
-		IconURL:   cuisine.IconURL,
-		URL:       cuisine.URL,
-		Comment:   cuisine.Comment,
-		CreatedAt: cuisine.CreatedAt,
-		UpdatedAt: updatedCuisine.UpdatedAt,
-		UserID:    updatedCuisine.UserID,
-	}
+// 	rescuisine := model.CuisineResponse{
+// 		ID:        updatedCuisine.ID,
+// 		Title:     cuisine.Title,
+// 		IconURL:   cuisine.IconURL,
+// 		URL:       cuisine.URL,
+// 		Comment:   cuisine.Comment,
+// 		CreatedAt: cuisine.CreatedAt,
+// 		UpdatedAt: updatedCuisine.UpdatedAt,
+// 		UserID:    updatedCuisine.UserID,
+// 	}
 
-	// log.Print("updatedCuisine")
-	// log.Print("title", updatedCuisine.Title)
-	// log.Print("url", updatedCuisine.URL)
-	// log.Print("CreatedAt", updatedCuisine.CreatedAt)
-	// log.Print("UpdatedAt", updatedCuisine.UpdatedAt)
+// 	// log.Print("updatedCuisine")
+// 	// log.Print("title", updatedCuisine.Title)
+// 	// log.Print("url", updatedCuisine.URL)
+// 	// log.Print("CreatedAt", updatedCuisine.CreatedAt)
+// 	// log.Print("UpdatedAt", updatedCuisine.UpdatedAt)
 
-	// log.Print("cuisine")
-	// log.Print("title", cuisine.Title)
-	// log.Print("url", cuisine.URL)
-	// log.Print("CreatedAt", cuisine.CreatedAt)
-	// log.Print("UpdatedAt", cuisine.UpdatedAt)
+// 	// log.Print("cuisine")
+// 	// log.Print("title", cuisine.Title)
+// 	// log.Print("url", cuisine.URL)
+// 	// log.Print("CreatedAt", cuisine.CreatedAt)
+// 	// log.Print("UpdatedAt", cuisine.UpdatedAt)
 
-	// log.Print("rescuisine")
-	// log.Print("title", rescuisine.Title)
-	// log.Print("url", rescuisine.URL)
-	// log.Print("CreatedAt", rescuisine.CreatedAt)
-	// log.Print("UpdatedAt", rescuisine.UpdatedAt)
+// 	// log.Print("rescuisine")
+// 	// log.Print("title", rescuisine.Title)
+// 	// log.Print("url", rescuisine.URL)
+// 	// log.Print("CreatedAt", rescuisine.CreatedAt)
+// 	// log.Print("UpdatedAt", rescuisine.UpdatedAt)
 
-	return rescuisine, nil
-}
+// 	return rescuisine, nil
+// }
