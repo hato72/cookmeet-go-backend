@@ -137,9 +137,9 @@ jobs:
 
   deploy:
     name: Deploy to Production
-    needs: [test]
+    needs: [test,build]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: ${{ ! failure() }}
     
     steps:
     - uses: actions/checkout@v3
