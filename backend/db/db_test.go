@@ -4,6 +4,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
@@ -17,11 +18,13 @@ import (
 
 func init() {
 	// テスト用の環境変数を設定
-	os.Setenv("POSTGRES_USER", "hato")
-	os.Setenv("POSTGRES_PW", "hato72")
-	os.Setenv("POSTGRES_DB", "hato_test")
-	os.Setenv("POSTGRES_PORT", "5432")
-	os.Setenv("POSTGRES_HOST", "localhost")
+	if os.Getenv("GO_ENV") == "test" {
+		os.Setenv("POSTGRES_USER", "hato")
+		os.Setenv("POSTGRES_PW", "hato72")
+		os.Setenv("POSTGRES_DB", "hato_test")
+		os.Setenv("POSTGRES_PORT", "5432")
+		os.Setenv("POSTGRES_HOST", "localhost")
+	}
 
 	// .env.testファイルが存在する場合は読み込む
 	if err := godotenv.Load("../.env.test"); err != nil {
