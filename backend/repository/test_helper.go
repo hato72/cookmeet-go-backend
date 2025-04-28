@@ -18,7 +18,7 @@ func init() {
 	os.Setenv("POSTGRES_USER", "hato")
 	os.Setenv("POSTGRES_PW", "hato72")
 	os.Setenv("POSTGRES_DB", "hato_test")
-	os.Setenv("POSTGRES_PORT", "5433")
+	os.Setenv("POSTGRES_PORT", "5432")
 	os.Setenv("POSTGRES_HOST", "localhost")
 
 	// .env.testファイルの読み込みを試みる
