@@ -30,12 +30,9 @@ func init() {
 // SetupTestDB initializes and returns a test database connection
 func SetupTestDB() *gorm.DB {
 	// テスト用のDB接続情報
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tokyo",
-		os.Getenv("POSTGRES_HOST"),
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PW"),
-		os.Getenv("POSTGRES_DB"),
-		os.Getenv("POSTGRES_PORT"))
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PW"), os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_DB"))
 
 	// テスト用のログ設定
 	config := &gorm.Config{
@@ -75,9 +72,8 @@ func CreateTestUser(db *gorm.DB) *model.User {
 		Email:    "test@example.com",
 		Password: "password123",
 	}
-	result := db.Create(user)
-	if result.Error != nil {
-		panic(fmt.Sprintf("failed to create test user: %v", result.Error))
+	if err := db.Create(user).Error; err != nil {
+		panic(fmt.Sprintf("failed to create test user: %v", err))
 	}
 	return user
 }

@@ -5,16 +5,15 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
-func init() {
-	// テスト環境変数の読み込み
-	if err := godotenv.Load("../.env.test"); err != nil {
-		panic("Error loading .env.test file")
-	}
-}
+// func init() {
+// 	// テスト環境変数の読み込み
+// 	if err := godotenv.Load("../.env.test"); err != nil {
+// 		panic("Error loading .env.test file")
+// 	}
+// }
 
 func init() {
 	// テスト用の環境変数を設定
@@ -58,7 +57,7 @@ func TestNewDB(t *testing.T) {
 				t.Errorf("Failed to get SQL database: %v", err)
 			}
 
-			//データベースネットワークの確認
+			// データベースネットワークの確認
 			err = sqlDB.Ping()
 			if err != nil {
 				t.Errorf("Database ping failed: %v", err)
