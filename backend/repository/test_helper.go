@@ -14,8 +14,15 @@ import (
 )
 
 func init() {
-	err := godotenv.Load("../.env.test")
-	if err != nil {
+	// テスト用の環境変数を設定
+	os.Setenv("POSTGRES_USER", "hato")
+	os.Setenv("POSTGRES_PW", "hato72")
+	os.Setenv("POSTGRES_DB", "hato_test")
+	os.Setenv("POSTGRES_PORT", "5434")
+	os.Setenv("POSTGRES_HOST", "localhost")
+
+	// .env.testファイルの読み込みを試みる
+	if err := godotenv.Load("../.env.test"); err != nil {
 		log.Printf("Warning: .env.test file not found: %v", err)
 	}
 }
