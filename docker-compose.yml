@@ -17,7 +17,7 @@ services:
   test-db:
     image: postgres:latest
     container_name: test-db
-    ports:
+    port:
       - 5432:5432
     environment:
       POSTGRES_USER: hato
