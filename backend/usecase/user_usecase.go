@@ -1,9 +1,9 @@
 package usecase
 
-//サインアップ、ログイン、更新処理を実装
-//サインアップでは、user_validatorを呼び出したのち、user_repositoryのユーザーテーブル作成メソッドを呼び出している
-//ログインでは、user_repositoryのemailでのユーザー検索メソッドを呼び出したのち、jwtトークンの検証を行っている
-//更新処理では、更新情報があればデータの更新を行っている
+// サインアップ、ログイン、更新処理を実装
+// サインアップでは、user_validatorを呼び出したのち、user_repositoryのユーザーテーブル作成メソッドを呼び出している
+// ログインでは、user_repositoryのemailでのユーザー検索メソッドを呼び出したのち、jwtトークンの検証を行っている
+// 更新処理では、更新情報があればデータの更新を行っている
 
 import (
 	"backend/model"
@@ -75,7 +75,7 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 		ID:      newUser.ID,
 		Name:    newUser.Name,
 		Email:   newUser.Email,
-		IconUrl: newUser.IconUrl,
+		IconURL: newUser.IconURL,
 	}
 	return resUser, nil
 }
@@ -84,20 +84,20 @@ func (uu *userUsecase) Login(user model.User) (string, error) {
 	if err := uu.uv.UserValidate(user); err != nil {
 		return "", err
 	}
-	storedUser := model.User{} //空のユーザーオブジェクト
+	storedUser := model.User{} // 空のユーザーオブジェクト
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil {
 		return "", ErrUserNotFound
 	}
-	err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password)) //パスワードの検証
+	err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password)) // パスワードの検証
 	if err != nil {
 		// エラーをラップすることで、errors.Isでの判定が成功するようにする
 		return "", fmt.Errorf("password mismatch: %w", ErrInvalidPassword)
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": storedUser.ID,
-		"exp":     time.Now().Add(time.Hour * 12).Unix(), //jwtの有効期限
+		"exp":     time.Now().Add(time.Hour * 12).Unix(), // jwtの有効期限
 	})
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET"))) //jwtトークンの生成
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET"))) // jwtトークンの生成
 	if err != nil {
 		return "", err
 	}
@@ -132,20 +132,35 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 
 		ext := filepath.Ext(iconFile.Filename)
 
-		iconUrl := "icons/" + hashValue + ext
+		IconURL := "icons/" + hashValue + ext
 
-		dst, err := os.Create("./user_images/" + iconUrl)
+		const baseDir = "./user_images"
+
+		safeIconURL := filepath.Clean(IconURL)
+		if !strings.HasPrefix(filepath.Clean(filepath.Join(baseDir, safeIconURL)), baseDir) {
+			return model.UserResponse{}, fmt.Errorf("invalid path: potential directory traversal")
+		}
+
+		if err := os.MkdirAll(baseDir, 0755); err != nil {
+			return model.UserResponse{}, fmt.Errorf("failed to create directory: %v", err)
+		}
+
+		fullPath := filepath.Join(baseDir, safeIconURL)
+		dst, err := os.OpenFile(fullPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			return model.UserResponse{}, err
 		}
-
-		defer dst.Close()
+		defer func() {
+			if cerr := dst.Close(); cerr != nil && err == nil {
+				err = cerr
+			}
+		}()
 
 		if _, err := dst.Write(data); err != nil {
 			return model.UserResponse{}, nil
 		}
 
-		user.IconUrl = &iconUrl
+		user.IconURL = &IconURL
 
 	}
 
@@ -154,9 +169,9 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 		Name:     newName,
 		Email:    newEmail,
 		Password: newPassword,
-		IconUrl:  user.IconUrl,
+		IconURL:  user.IconURL,
 	}
-	//log.Print("updateUser:", updatedUser)
+	// log.Print("updateUser:", updatedUser)
 
 	if err := uu.ur.UpdateUser(&updatedUser); err != nil {
 		return model.UserResponse{}, err
@@ -166,9 +181,9 @@ func (uu *userUsecase) Update(user model.User, newEmail string, newName string, 
 		ID:      updatedUser.ID,
 		Name:    updatedUser.Name,
 		Email:   updatedUser.Email,
-		IconUrl: updatedUser.IconUrl,
+		IconURL: updatedUser.IconURL,
 	}
-	//log.Print("resUser:", resUser)
+	// log.Print("resUser:", resUser)
 
 	return resUser, nil
 

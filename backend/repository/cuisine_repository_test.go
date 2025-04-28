@@ -22,13 +22,13 @@ func TestGetAllCuisines(t *testing.T) {
 		{
 			Title:     "Test Cuisine 1",
 			URL:       "https://example.com/1",
-			UserId:    user.ID,
+			UserID:    user.ID,
 			CreatedAt: time.Now(),
 		},
 		{
 			Title:     "Test Cuisine 2",
 			URL:       "https://example.com/2",
-			UserId:    user.ID,
+			UserID:    user.ID,
 			CreatedAt: time.Now().Add(time.Hour),
 		},
 	}
@@ -45,7 +45,7 @@ func TestGetAllCuisines(t *testing.T) {
 	assert.Equal(t, "Test Cuisine 2", fetchedCuisines[1].Title)
 }
 
-func TestGetCuisineById(t *testing.T) {
+func TestGetCuisineByID(t *testing.T) {
 	db := SetupTestDB()
 	defer CleanupTestDB(db)
 
@@ -56,23 +56,23 @@ func TestGetCuisineById(t *testing.T) {
 	cuisine := model.Cuisine{
 		Title:  "Test Cuisine",
 		URL:    "https://example.com",
-		UserId: user.ID,
+		UserID: user.ID,
 	}
 	assert.NoError(t, repo.CreateCuisine(&cuisine))
 
 	testCases := []struct {
 		name    string
-		userId  uint
+		UserID  uint
 		wantErr bool
 	}{
 		{
 			name:    "正常なケース",
-			userId:  user.ID,
+			UserID:  user.ID,
 			wantErr: false,
 		},
 		{
 			name:    "存在しないユーザーID",
-			userId:  user.ID + 1,
+			UserID:  user.ID + 1,
 			wantErr: true,
 		},
 	}
@@ -80,14 +80,14 @@ func TestGetCuisineById(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			var fetchedCuisine model.Cuisine
-			err := repo.GetCuisineById(&fetchedCuisine, tc.userId, cuisine.ID)
+			err := repo.GetCuisineByID(&fetchedCuisine, tc.UserID, cuisine.ID)
 			if tc.wantErr {
 				assert.Error(t, err, gorm.ErrRecordNotFound)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, cuisine.Title, fetchedCuisine.Title)
 				assert.Equal(t, cuisine.URL, fetchedCuisine.URL)
-				assert.Equal(t, cuisine.UserId, fetchedCuisine.UserId)
+				assert.Equal(t, cuisine.UserID, fetchedCuisine.UserID)
 			}
 		})
 	}
@@ -110,7 +110,7 @@ func TestCreateCuisine(t *testing.T) {
 			cuisine: model.Cuisine{
 				Title:  "New Cuisine",
 				URL:    "https://example.com",
-				UserId: user.ID,
+				UserID: user.ID,
 			},
 			wantErr: false,
 		},
@@ -118,7 +118,7 @@ func TestCreateCuisine(t *testing.T) {
 			name: "タイトルなし",
 			cuisine: model.Cuisine{
 				URL:    "https://example.com",
-				UserId: user.ID,
+				UserID: user.ID,
 			},
 			wantErr: true,
 		},
@@ -148,30 +148,30 @@ func TestDeleteCuisine(t *testing.T) {
 	cuisine := model.Cuisine{
 		Title:  "Test Cuisine",
 		URL:    "https://example.com",
-		UserId: user.ID,
+		UserID: user.ID,
 	}
 	assert.NoError(t, repo.CreateCuisine(&cuisine))
 
 	testCases := []struct {
 		name    string
-		userId  uint
+		UserID  uint
 		wantErr bool
 	}{
 		{
 			name:    "正常なケース",
-			userId:  user.ID,
+			UserID:  user.ID,
 			wantErr: false,
 		},
 		{
 			name:    "存在しないユーザーID",
-			userId:  user.ID + 1,
+			UserID:  user.ID + 1,
 			wantErr: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := repo.DeleteCuisine(tc.userId, cuisine.ID)
+			err := repo.DeleteCuisine(tc.UserID, cuisine.ID)
 			if tc.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -196,11 +196,11 @@ func TestSettingCuisine(t *testing.T) {
 	cuisine := model.Cuisine{
 		Title:  "Test Cuisine",
 		URL:    "https://example.com",
-		UserId: user.ID,
+		UserID: user.ID,
 	}
 	assert.NoError(t, repo.CreateCuisine(&cuisine))
 
-	iconURL := "https://example.com/icon.png"
+	IconURL := "https://example.com/icon.png"
 	newURL := "https://example.com/new"
 
 	testCases := []struct {
@@ -212,8 +212,8 @@ func TestSettingCuisine(t *testing.T) {
 			name: "アイコンURLの更新",
 			update: model.Cuisine{
 				ID:      cuisine.ID,
-				UserId:  user.ID,
-				IconUrl: &iconURL,
+				UserID:  user.ID,
+				IconURL: &IconURL,
 			},
 			wantErr: false,
 		},
@@ -221,7 +221,7 @@ func TestSettingCuisine(t *testing.T) {
 			name: "URLの更新",
 			update: model.Cuisine{
 				ID:     cuisine.ID,
-				UserId: user.ID,
+				UserID: user.ID,
 				URL:    newURL,
 			},
 			wantErr: false,
@@ -240,8 +240,8 @@ func TestSettingCuisine(t *testing.T) {
 				var updated model.Cuisine
 				db.First(&updated, cuisine.ID)
 
-				if tc.update.IconUrl != nil {
-					assert.Equal(t, *tc.update.IconUrl, *updated.IconUrl)
+				if tc.update.IconURL != nil {
+					assert.Equal(t, *tc.update.IconURL, *updated.IconURL)
 				}
 				if tc.update.URL != "" {
 					assert.Equal(t, tc.update.URL, updated.URL)

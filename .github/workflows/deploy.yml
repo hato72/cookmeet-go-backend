@@ -1,0 +1,187 @@
+name: Go CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ '*' ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  SERVICE_NAME: cookmeet-go-backend
+  REGION: asia-southeast1
+  TAG: efac138e0ac736bd6611e5ce1c6214f89e69b186
+
+jobs:
+  lint:
+    name: Run Lint
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[Nolint]')"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          working-directory: backend
+          args: --timeout=5m --out-format=colored-line-number
+
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+
+    - name: Build
+      run: |
+        cd backend
+        go build ./...
+
+  # security:
+  #   name: Security Scan
+  #   runs-on: ubuntu-latest
+  #   needs: [lint,build]
+  #   steps:
+  #   - uses: actions/checkout@v3
+
+  #   - name: Set up Go
+  #     uses: actions/setup-go@v4
+  #     with:
+  #       go-version: '1.23'
+
+  #   - name: Install gosec
+  #     run: |
+  #       go install github.com/securego/gosec/v2/cmd/gosec@latest
+  #       export PATH=$PATH:$(go env GOPATH)/bin
+
+  #   - name: Run gosec Security Scan
+  #     run: |
+  #       cd backend
+  #       gosec ./...
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[Notest]')"
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: hato
+          POSTGRES_PASSWORD: hato72
+          POSTGRES_DB: hato_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+
+    - name: Install dependencies
+      run: |
+        cd backend
+        go mod download
+
+    - name: Initialize test database
+      run: |
+        PGPASSWORD=hato72 psql -h localhost -U hato -p 5432 -d hato_test -c "SELECT 1"
+      continue-on-error: true
+
+    - name: Create test directories and setup database
+      run: |
+        cd backend
+        mkdir -p user_images/icons
+        mkdir -p cuisine_images/cuisine_icons
+
+    - name: Wait for PostgreSQL
+      run: |
+        while ! nc -z localhost 5432; do
+          sleep 1
+        done
+
+    - name: Run Tests
+      run: |
+        cd backend
+        go test -v ./...
+      env:
+        POSTGRES_USER: hato
+        POSTGRES_PASSWORD: hato72
+        POSTGRES_DB: hato_test
+        POSTGRES_PORT: 5432
+        POSTGRES_HOST: localhost
+        GO_ENV: test
+        SECRET: test_secret
+        DATABASE_URL: postgres://hato:hato72@localhost:5432/hato_test?sslmode=disable
+
+  deploy:
+    name: Deploy to Production
+    needs: [test,build]
+    runs-on: ubuntu-latest
+    if: ${{ ! failure() }}
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    # GCP認証
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+    
+    # GCP CLIのセットアップ
+    - name: Set up gcloud CLI
+      uses: google-github-actions/setup-gcloud@v1
+
+    # 権限を付与
+    - name: Configure Docker for Artifact Registry
+      run: |
+        gcloud auth configure-docker asia-southeast1-docker.pkg.dev --quiet
+    
+    # Dockerイメージのビルドとプッシュ
+    - name: Build and push Docker image to Artifact Registry
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: asia-southeast1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ env.TAG }}
+
+    # Cloud Run へデプロイ
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy $SERVICE_NAME \
+          --image asia-southeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/$SERVICE_NAME/$SERVICE_NAME:$TAG\
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated \
+
+    # Renderへのデプロイ
+    # - name: Deploy to Render 
+    #   uses: ttskch/render-deploy@v1.0.0
+    #   with:
+    #     api-key: ${{ secrets.RENDER_API_KEY }}
+    #     service-id: ${{ secrets.RENDER_SERVICE_ID }}
+    #     interval: 20 # optional
+    #     timeout: 500 # optional

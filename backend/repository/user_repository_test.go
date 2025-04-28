@@ -64,7 +64,9 @@ func TestGetUserByEmail(t *testing.T) {
 		Email:    "test@example.com",
 		Password: "password123",
 	}
-	repo.CreateUser(testUser)
+	if err := repo.CreateUser(testUser); err != nil {
+		t.Fatalf("failed to create user: %v", err)
+	}
 
 	testCases := []struct {
 		name     string
@@ -112,7 +114,9 @@ func TestUpdateUser(t *testing.T) {
 		Email:    "original@example.com",
 		Password: "password123",
 	}
-	repo.CreateUser(testUser)
+	if err := repo.CreateUser(testUser); err != nil {
+		t.Fatalf("failed to create user: %v", err)
+	}
 
 	testCases := []struct {
 		name    string

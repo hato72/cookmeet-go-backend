@@ -69,7 +69,7 @@ func (uc *UserController) Login(c echo.Context) error {
 	cookie.Secure = true
 	cookie.HttpOnly = true
 	cookie.SameSite = http.SameSiteNoneMode
-	c.SetCookie(cookie) //httpレスポンスに含める
+	c.SetCookie(cookie) // httpレスポンスに含める
 	return c.NoContent(http.StatusOK)
 }
 
@@ -83,7 +83,7 @@ func (uc *UserController) Logout(c echo.Context) error {
 	cookie.Secure = true
 	cookie.HttpOnly = true
 	cookie.SameSite = http.SameSiteNoneMode
-	c.SetCookie(cookie) //httpレスポンスに含める
+	c.SetCookie(cookie) // httpレスポンスに含める
 	return c.NoContent(http.StatusOK)
 }
 
@@ -92,23 +92,23 @@ func (uc *UserController) Update(c echo.Context) error {
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	//log.Print(user)
+	// log.Print(user)
 
 	authUser := c.Get("user").(*jwt.Token)
 	claims := authUser.Claims.(jwt.MapClaims)
-	userId := claims["user_id"]
+	UserID := claims["user_id"]
 
-	//log.Print(authUser)
-	//log.Print(userId)
+	// log.Print(authUser)
+	// log.Print(UserID)
 
-	userID := uint(userId.(float64))
+	userID := uint(UserID.(float64))
 	user.ID = userID
 	newEmail := c.FormValue("email")
 	newName := c.FormValue("name")
 	newPassword := c.FormValue("password")
 	iconFile, err := c.FormFile("icon")
 
-	//log.Print(userID, newEmail, newName, newPassword, iconFile)
+	// log.Print(UserID, newEmail, newName, newPassword, iconFile)
 
 	if err != nil {
 		if err != http.ErrMissingFile {
@@ -126,7 +126,7 @@ func (uc *UserController) Update(c echo.Context) error {
 
 func (uc *UserController) CsrfToken(c echo.Context) error {
 	token := c.Get("csrf").(string)
-	return c.JSON(http.StatusOK, echo.Map{ //クライアントにcsrfトークンをレスポンス
+	return c.JSON(http.StatusOK, echo.Map{ // クライアントにcsrfトークンをレスポンス
 		"csrf_token": token,
 	})
 }

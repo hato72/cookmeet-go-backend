@@ -15,16 +15,16 @@ type MockCuisineRepository struct {
 	mock.Mock
 }
 
-func (m *MockCuisineRepository) GetAllCuisines(cuisines *[]model.Cuisine, userId uint) error {
-	args := m.Called(cuisines, userId)
+func (m *MockCuisineRepository) GetAllCuisines(cuisines *[]model.Cuisine, userID uint) error {
+	args := m.Called(cuisines, userID)
 	if args.Get(0) != nil {
 		*cuisines = args.Get(0).([]model.Cuisine)
 	}
 	return args.Error(1)
 }
 
-func (m *MockCuisineRepository) GetCuisineById(cuisine *model.Cuisine, userId uint, cuisineId uint) error {
-	args := m.Called(cuisine, userId, cuisineId)
+func (m *MockCuisineRepository) GetCuisineByID(cuisine *model.Cuisine, userID uint, cuisineID uint) error {
+	args := m.Called(cuisine, userID, cuisineID)
 	if args.Get(0) != nil {
 		*cuisine = args.Get(0).(model.Cuisine)
 	}
@@ -36,8 +36,8 @@ func (m *MockCuisineRepository) CreateCuisine(cuisine *model.Cuisine) error {
 	return args.Error(0)
 }
 
-func (m *MockCuisineRepository) DeleteCuisine(userId uint, cuisineId uint) error {
-	args := m.Called(userId, cuisineId)
+func (m *MockCuisineRepository) DeleteCuisine(userID uint, cuisineID uint) error {
+	args := m.Called(userID, cuisineID)
 	return args.Error(0)
 }
 
@@ -52,7 +52,7 @@ func TestGetAllCuisines(t *testing.T) {
 	validator := validator.NewCuisineValidator()
 	usecase := NewCuisineUsecase(mockRepo, validator)
 
-	userId := uint(1)
+	UserID := uint(1)
 	now := time.Now()
 	mockCuisines := []model.Cuisine{
 		{
@@ -61,7 +61,7 @@ func TestGetAllCuisines(t *testing.T) {
 			URL:       "http://example.com/1",
 			CreatedAt: now,
 			UpdatedAt: now,
-			UserId:    userId,
+			UserID:    UserID,
 		},
 		{
 			ID:        2,
@@ -69,12 +69,12 @@ func TestGetAllCuisines(t *testing.T) {
 			URL:       "http://example.com/2",
 			CreatedAt: now,
 			UpdatedAt: now,
-			UserId:    userId,
+			UserID:    UserID,
 		},
 	}
 
 	// モックの振る舞いを設定
-	mockRepo.On("GetAllCuisines", mock.AnythingOfType("*[]model.Cuisine"), userId).
+	mockRepo.On("GetAllCuisines", mock.AnythingOfType("*[]model.Cuisine"), UserID).
 		Run(func(args mock.Arguments) {
 			cuisines := args.Get(0).(*[]model.Cuisine)
 			*cuisines = mockCuisines
@@ -82,7 +82,7 @@ func TestGetAllCuisines(t *testing.T) {
 		Return(mockCuisines, nil)
 
 	// テスト実行
-	cuisines, err := usecase.GetAllCuisines(userId)
+	cuisines, err := usecase.GetAllCuisines(UserID)
 
 	// アサーション
 	assert.NoError(t, err)
@@ -92,26 +92,26 @@ func TestGetAllCuisines(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func TestGetCuisineById(t *testing.T) {
+func TestGetCuisineByID(t *testing.T) {
 	// モックの準備
 	mockRepo := new(MockCuisineRepository)
 	validator := validator.NewCuisineValidator()
 	usecase := NewCuisineUsecase(mockRepo, validator)
 
-	userId := uint(1)
-	cuisineId := uint(1)
+	UserID := uint(1)
+	cuisineID := uint(1)
 	now := time.Now()
 	mockCuisine := model.Cuisine{
-		ID:        cuisineId,
+		ID:        cuisineID,
 		Title:     "Test Cuisine",
 		URL:       "http://example.com",
 		CreatedAt: now,
 		UpdatedAt: now,
-		UserId:    userId,
+		UserID:    UserID,
 	}
 
 	// モックの振る舞いを設定
-	mockRepo.On("GetCuisineById", mock.AnythingOfType("*model.Cuisine"), userId, cuisineId).
+	mockRepo.On("GetCuisineByID", mock.AnythingOfType("*model.Cuisine"), UserID, cuisineID).
 		Run(func(args mock.Arguments) {
 			cuisine := args.Get(0).(*model.Cuisine)
 			*cuisine = mockCuisine
@@ -119,7 +119,7 @@ func TestGetCuisineById(t *testing.T) {
 		Return(mockCuisine, nil)
 
 	// テスト実行
-	cuisine, err := usecase.GetCuisineById(userId, cuisineId)
+	cuisine, err := usecase.GetCuisineByID(UserID, cuisineID)
 
 	// アサーション
 	assert.NoError(t, err)
@@ -134,14 +134,14 @@ func TestDeleteCuisine(t *testing.T) {
 	validator := validator.NewCuisineValidator()
 	usecase := NewCuisineUsecase(mockRepo, validator)
 
-	userId := uint(1)
-	cuisineId := uint(1)
+	UserID := uint(1)
+	cuisineID := uint(1)
 
 	// モックの振る舞いを設定
-	mockRepo.On("DeleteCuisine", userId, cuisineId).Return(nil)
+	mockRepo.On("DeleteCuisine", UserID, cuisineID).Return(nil)
 
 	// テスト実行
-	err := usecase.DeleteCuisine(userId, cuisineId)
+	err := usecase.DeleteCuisine(UserID, cuisineID)
 
 	// アサーション
 	assert.NoError(t, err)
@@ -157,7 +157,7 @@ func TestAddCuisine(t *testing.T) {
 	cuisine := model.Cuisine{
 		Title:  "Test Cuisine",
 		URL:    "http://example.com",
-		UserId: 1,
+		UserID: 1,
 	}
 
 	// モックの振る舞いを設定

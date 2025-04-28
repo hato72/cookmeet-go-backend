@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"io"
 	"time"
+
 	"cloud.google.com/go/storage"
 )
 
 // UploadToCloudStorage はファイルを GCS にアップロードし、公開URLを返す
 func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string, error) {
-	ctx := context.Background()
-	// credentialFilePath := "./cookmeet-ai-b1a34baf28a6.json"
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel() // コンテキストをキャンセルして確実にリソースを解放
+
+	// credentialFilePath := "/etc/secrets/cookmeet-backend.json"
 	// client, err := storage.NewClient(ctx, option.WithCredentialsFile(credentialFilePath))
+
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return "", fmt.Errorf("failed to create storage client: %v", err)
@@ -22,18 +26,22 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 	// GCS にファイルをアップロード
 	bucket := client.Bucket(bucketName)
 	obj := bucket.Object(objectName)
+	fmt.Printf("bucket: %s, object: %s\n", bucketName, objectName)
 	w := obj.NewWriter(ctx)
 	w.ContentType = "image/jpeg" // 必要に応じて変更
 	w.CacheControl = "public, max-age=86400"
 
-	if _, err := io.Copy(w, file); err != nil {
-		return "", fmt.Errorf("failed to write file to cloud storage: %v", err)
+	if _, copyErr := io.Copy(w, file); copyErr != nil {
+		return "", fmt.Errorf("failed to write file to cloud storage: %v", copyErr)
 	}
-	if err := w.Close(); err != nil {
-		return "", fmt.Errorf("failed to close writer: %v", err)
+
+	if closeErr := w.Close(); closeErr != nil {
+		return "", fmt.Errorf("failed to close writer: %v", closeErr)
 	}
 
 	// 公開URLを生成
+	// publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
+
 	// publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
 
 	publicURL, err := generateSignedURL(bucket, objectName)
@@ -41,6 +49,7 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 		return "", fmt.Errorf("failed to generate signed URL: %v", err)
 	}
 	return publicURL, nil
+
 }
 
 // 署名付きURLを生成する関数

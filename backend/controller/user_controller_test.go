@@ -84,7 +84,9 @@ func TestSignUp(t *testing.T) {
 			// モックの期待値を設定
 			if tc.expectStatus == http.StatusCreated {
 				var user model.User
-				json.Unmarshal([]byte(tc.inputJSON), &user)
+				if err := json.Unmarshal([]byte(tc.inputJSON), &user); err != nil {
+					t.Fatalf("Failed to unmarshal test input: %v", err)
+				}
 				mockUsecase.On("SignUp", user).Return(tc.mockResponse, tc.mockError)
 			}
 
@@ -99,7 +101,9 @@ func TestSignUp(t *testing.T) {
 
 			if tc.expectStatus == http.StatusCreated {
 				var response model.UserResponse
-				json.Unmarshal(rec.Body.Bytes(), &response)
+				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+					t.Errorf("Failed to unmarshal response: %v", err)
+				}
 				assert.Equal(t, tc.mockResponse.ID, response.ID)
 				assert.Equal(t, tc.mockResponse.Name, response.Name)
 				assert.Equal(t, tc.mockResponse.Email, response.Email)
@@ -123,21 +127,21 @@ func TestLogin(t *testing.T) {
 	}{
 		{
 			name:         "正常なログイン",
-			inputJSON:    `{"email":"test@example.com","password":"password123"}`,
+			inputJSON:    `{"name":"Test User","email":"test@example.com","password":"password123"}`,
 			mockToken:    "valid.jwt.token",
 			mockError:    nil,
 			expectStatus: http.StatusOK,
 		},
 		{
 			name:         "無効な認証情報",
-			inputJSON:    `{"email":"test@example.com","password":"wrongpassword"}`,
+			inputJSON:    `{"name":"Test User","email":"test@example.com","password":"wrongpassword"}`,
 			mockToken:    "",
 			mockError:    usecase.ErrUserNotFound,
 			expectStatus: http.StatusNotFound,
 		},
 		{
 			name:         "パスワードが間違っている",
-			inputJSON:    `{"email":"test@example.com","password":"wrongpassword"}`,
+			inputJSON:    `{"name":"Test User","email":"test@example.com","password":"wrongpassword"}`,
 			mockToken:    "",
 			mockError:    usecase.ErrInvalidPassword, // usecase で定義しているパスワード不一致エラー
 			expectStatus: http.StatusUnauthorized,
@@ -155,14 +159,17 @@ func TestLogin(t *testing.T) {
 			c := e.NewContext(req, rec)
 
 			var user model.User
-			json.Unmarshal([]byte(tc.inputJSON), &user)
-			mockUsecase.On("Login", user).Return(tc.mockToken, tc.mockError)
-
+			if err := json.Unmarshal([]byte(tc.inputJSON), &user); err != nil {
+				t.Fatalf("Failed to unmarshal test input: %v", err)
+			}
 			// if tc.expectStatus == http.StatusOK {
 			// 	var user model.User
 			// 	json.Unmarshal([]byte(tc.inputJSON), &user)
 			// 	mockUsecase.On("Login", user).Return(tc.mockToken, tc.mockError)
 			// }
+
+			// モックの期待値を設定
+			mockUsecase.On("Login", user).Return(tc.mockToken, tc.mockError)
 
 			err := controller.Login(c)
 
@@ -201,7 +208,7 @@ func TestLogout(t *testing.T) {
 		assert.Equal(t, 1, len(cookies))
 		assert.Equal(t, "token", cookies[0].Name)
 		assert.Equal(t, "", cookies[0].Value)
-		assert.True(t, cookies[0].Expires.Before(time.Now())) //現在時刻を指定
+		assert.True(t, cookies[0].Expires.Before(time.Now())) // 現在時刻を指定
 	})
 }
 
@@ -224,9 +231,19 @@ func TestUpdate(t *testing.T) {
 			setupRequest: func() (*http.Request, *httptest.ResponseRecorder) {
 				body := new(bytes.Buffer)
 				writer := multipart.NewWriter(body)
-				writer.WriteField("name", "Updated Name")
-				writer.WriteField("email", "new@example.com")
-				writer.Close()
+
+				// エラーチェックを追加
+				if err := writer.WriteField("name", "Updated Name"); err != nil {
+					t.Fatalf("failed to write name field: %v", err)
+				}
+				if err := writer.WriteField("email", "new@example.com"); err != nil {
+					t.Fatalf("failed to write email field: %v", err)
+				}
+
+				// Close()のエラーもチェック
+				if err := writer.Close(); err != nil {
+					t.Fatalf("failed to close writer: %v", err)
+				}
 
 				req := httptest.NewRequest(http.MethodPut, "/users/update", body)
 				req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
@@ -234,7 +251,7 @@ func TestUpdate(t *testing.T) {
 			},
 			mockSetup: func(m *mockUserUsecase) {
 				m.On("Update",
-					//mock.AnythingOfType("model.User"),
+					// mock.AnythingOfType("model.User"),
 					mock.MatchedBy(func(user model.User) bool {
 						return user.ID == 1
 					}),
@@ -269,7 +286,9 @@ func TestUpdate(t *testing.T) {
 
 			if tc.expectStatus == http.StatusOK {
 				var response model.UserResponse
-				json.Unmarshal(rec.Body.Bytes(), &response)
+				if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+					t.Fatalf("レスポンスのUnmarshalに失敗: %v", err)
+				}
 				assert.Equal(t, uint(1), response.ID)
 			}
 
@@ -295,7 +314,9 @@ func TestCsrfToken(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		var response map[string]string
-		json.Unmarshal(rec.Body.Bytes(), &response)
+		if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+			t.Fatalf("CSRFトークンレスポンスのUnmarshalに失敗: %v", err)
+		}
 		assert.Equal(t, "test-csrf-token", response["csrf_token"])
 	})
 }
