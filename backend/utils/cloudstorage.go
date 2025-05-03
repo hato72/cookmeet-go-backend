@@ -45,7 +45,6 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 
 	// 公開URLを生成
 	// publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
-
 	// publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
 
 	publicURL, err := generateSignedURL(bucket, objectName)
