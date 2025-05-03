@@ -19,6 +19,7 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 
 	client, err := storage.NewClient(ctx)
 	if err != nil {
+		fmt.Printf("storage client creation error: %v\n", err)
 		return "", fmt.Errorf("failed to create storage client: %v", err)
 	}
 	defer client.Close()
@@ -30,12 +31,15 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 	w := obj.NewWriter(ctx)
 	w.ContentType = "image/jpeg" // 必要に応じて変更
 	w.CacheControl = "public, max-age=86400"
+	w.PredefinedACL = "" // ACLを無効化
 
 	if _, copyErr := io.Copy(w, file); copyErr != nil {
+		fmt.Printf("file upload error: %v\n", copyErr)
 		return "", fmt.Errorf("failed to write file to cloud storage: %v", copyErr)
 	}
 
 	if closeErr := w.Close(); closeErr != nil {
+		fmt.Printf("writer close error: %v\n", closeErr)
 		return "", fmt.Errorf("failed to close writer: %v", closeErr)
 	}
 
@@ -54,16 +58,17 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 
 // 署名付きURLを生成する関数
 func generateSignedURL(bucket *storage.BucketHandle, objectName string) (string, error) {
-	// 署名付きURLのオプション設定
+	// Cloud Storageクライアントから署名付きURLを生成
 	opts := &storage.SignedURLOptions{
-		Method:         "GET",
-		Expires:        time.Now().Add(24 * time.Hour * 7), // 1週間有効
-		GoogleAccessID: "128862782844-compute@developer.gserviceaccount.com",
+		Method:  "GET",
+		Expires: time.Now().Add(24 * time.Hour * 7), // 1週間有効
+		Scheme:  storage.SigningSchemeV4,            // V4署名を使用
 	}
 
 	// 署名付きURLを生成
 	url, err := bucket.SignedURL(objectName, opts)
 	if err != nil {
+		fmt.Printf("signed URL generation error: %v\n", err)
 		return "", fmt.Errorf("failed to generate signed URL (object: %s): %v",
 			objectName, err)
 	}
