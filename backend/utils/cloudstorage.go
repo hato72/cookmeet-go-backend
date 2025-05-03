@@ -56,14 +56,16 @@ func UploadToCloudStorage(bucketName, objectName string, file io.Reader) (string
 func generateSignedURL(bucket *storage.BucketHandle, objectName string) (string, error) {
 	// 署名付きURLのオプション設定
 	opts := &storage.SignedURLOptions{
-		Method:  "GET",
-		Expires: time.Now().Add(24 * time.Hour * 7), // 1週間有効
+		Method:         "GET",
+		Expires:        time.Now().Add(24 * time.Hour * 7), // 1週間有効
+		GoogleAccessID: "128862782844-compute@developer.gserviceaccount.com",
 	}
 
 	// 署名付きURLを生成
 	url, err := bucket.SignedURL(objectName, opts)
 	if err != nil {
-		return "", fmt.Errorf("failed to generate signed URL: %v", err)
+		return "", fmt.Errorf("failed to generate signed URL (object: %s): %v",
+			objectName, err)
 	}
 
 	return url, nil
