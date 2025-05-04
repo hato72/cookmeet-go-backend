@@ -52,13 +52,16 @@ func (uc *UserController) Login(c echo.Context) error {
 	}
 	tokenString, err := uc.uu.Login(user)
 	if err != nil {
-		// errors.Isでエラーをチェックするように変更
-		if errors.Is(err, usecase.ErrUserNotFound) {
-			return c.JSON(http.StatusNotFound, err.Error()) // ユーザーが見つからない場合
-		} else if errors.Is(err, usecase.ErrInvalidPassword) {
-			return c.JSON(http.StatusUnauthorized, err.Error()) // パスワードが間違っている場合
+		switch {
+		case errors.Is(err, usecase.ErrUserNotFound):
+			return c.JSON(http.StatusNotFound, "ユーザーが見つかりません")
+		case errors.Is(err, usecase.ErrInvalidPassword):
+			return c.JSON(http.StatusUnauthorized, "パスワードが間違っています")
+		case errors.Is(err, usecase.ErrInvalidPasswordLength):
+			return c.JSON(http.StatusBadRequest, "パスワードは6文字以上である必要があります")
+		default:
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	cookie := new(http.Cookie)
 	cookie.Name = "token"

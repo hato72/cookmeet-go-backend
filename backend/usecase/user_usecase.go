@@ -29,6 +29,7 @@ var (
 	ErrUserNotFound      = errors.New("user not found")
 	ErrInvalidPassword   = errors.New("invalid password")
 	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrInvalidPasswordLength = errors.New("password must be at least 6 characters")
 )
 
 type IUserUsecase interface {
@@ -82,7 +83,11 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 
 func (uu *userUsecase) Login(user model.User) (string, error) {
 	if err := uu.uv.UserValidate(user); err != nil {
-		return "", err
+		// パスワードの長さが不足している場合の特別なエラーハンドリング
+        if strings.Contains(err.Error(), "limited min 6") {
+            return "", ErrInvalidPasswordLength
+        }
+        return "", err
 	}
 	storedUser := model.User{} // 空のユーザーオブジェクト
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil {
