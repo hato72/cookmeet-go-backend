@@ -3,15 +3,26 @@ package usecase
 import (
 	"backend/model"
 	"backend/validator"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"gorm.io/gorm"
+)
+
+var (
+	_ErrCuisineNotFound = errors.New("not found")
+	_ErrUnauthorized    = errors.New("unauthorized")
 )
 
 // MockCuisineRepository はCuisineRepositoryのモック
 type MockCuisineRepository struct {
+	mock.Mock
+}
+
+type MockCuisineValidator struct {
 	mock.Mock
 }
 
@@ -42,6 +53,11 @@ func (m *MockCuisineRepository) DeleteCuisine(userID uint, cuisineID uint) error
 }
 
 func (m *MockCuisineRepository) SettingCuisine(cuisine *model.Cuisine) error {
+	args := m.Called(cuisine)
+	return args.Error(0)
+}
+
+func (m *MockCuisineValidator) CuisineValidate(cuisine model.Cuisine) error {
 	args := m.Called(cuisine)
 	return args.Error(0)
 }
@@ -129,23 +145,90 @@ func TestGetCuisineByID(t *testing.T) {
 }
 
 func TestDeleteCuisine(t *testing.T) {
-	// モックの準備
 	mockRepo := new(MockCuisineRepository)
-	validator := validator.NewCuisineValidator()
-	usecase := NewCuisineUsecase(mockRepo, validator)
+	mockValidator := new(MockCuisineValidator)
+	cu := NewCuisineUsecase(mockRepo, mockValidator)
 
-	UserID := uint(1)
-	cuisineID := uint(1)
+	tests := []struct {
+		name      string
+		userID    uint
+		cuisineID uint
+		mockSetup func()
+		wantErr   error
+	}{
+		{
+			name:      "正常に削除できる場合",
+			userID:    1,
+			cuisineID: 1,
+			mockSetup: func() {
+				cuisine := &model.Cuisine{
+					ID:     1,
+					UserID: 1,
+				}
+				// GetCuisineByIDの振る舞いを定義
+				mockRepo.On("GetCuisineByID", mock.AnythingOfType("*model.Cuisine"), uint(1), uint(1)).
+					Run(func(args mock.Arguments) {
+						arg := args.Get(0).(*model.Cuisine)
+						*arg = *cuisine
+					}).Return(nil)
 
-	// モックの振る舞いを設定
-	mockRepo.On("DeleteCuisine", UserID, cuisineID).Return(nil)
+				// DeleteCuisineの振る舞いを定義
+				mockRepo.On("DeleteCuisine", uint(1), uint(1)).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name:      "料理が存在しない場合",
+			userID:    1,
+			cuisineID: 999,
+			mockSetup: func() {
+				mockRepo.On("GetCuisineByID", mock.AnythingOfType("*model.Cuisine"), uint(1), uint(999)).
+					Return(gorm.ErrRecordNotFound)
+			},
+			wantErr: _ErrCuisineNotFound,
+		},
+		{
+			name:      "権限がない場合",
+			userID:    2,
+			cuisineID: 1,
+			mockSetup: func() {
+				cuisine := &model.Cuisine{
+					ID:     1,
+					UserID: 1, // 別のユーザーのCuisine
+				}
+				mockRepo.On("GetCuisineByID", mock.AnythingOfType("*model.Cuisine"), uint(2), uint(1)).
+					Run(func(args mock.Arguments) {
+						arg := args.Get(0).(*model.Cuisine)
+						*arg = *cuisine
+					}).Return(nil)
+			},
+			wantErr: _ErrUnauthorized,
+		},
+	}
 
-	// テスト実行
-	err := usecase.DeleteCuisine(UserID, cuisineID)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// モックをリセット
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
 
-	// アサーション
-	assert.NoError(t, err)
-	mockRepo.AssertExpectations(t)
+			// モックの設定
+			tt.mockSetup()
+
+			// テスト実行
+			err := cu.DeleteCuisine(tt.userID, tt.cuisineID)
+
+			// アサーション
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			// モックの呼び出しを検証
+			mockRepo.AssertExpectations(t)
+		})
+	}
 }
 
 func TestAddCuisine(t *testing.T) {
