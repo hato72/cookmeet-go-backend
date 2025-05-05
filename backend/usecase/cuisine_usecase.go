@@ -8,6 +8,10 @@ import (
 	"backend/model"
 	"backend/repository"
 	"backend/validator"
+	"errors"
+	"fmt"
+
+	"gorm.io/gorm"
 )
 
 type ICuisineUsecase interface {
@@ -108,11 +112,39 @@ func (cu *cuisineUsecase) GetCuisineByID(userID uint, cuisineID uint) (model.Cui
 // 	return rescuisine, nil
 // }
 
+// カスタムエラーの定義（ファイル上部に追加）
+var (
+	ErrCuisineNotFound = errors.New("cuisine not found")
+	ErrUnauthorized    = errors.New("unauthorized to delete this cuisine")
+)
+
+// DeleteCuisineメソッドの修正
 func (cu *cuisineUsecase) DeleteCuisine(userID uint, cuisineID uint) error {
-	if err := cu.cr.DeleteCuisine(userID, cuisineID); err != nil {
-		return err
+	// 1. 料理の存在確認と所有者の検証
+	cuisine := model.Cuisine{}
+	if err := cu.cr.GetCuisineByID(&cuisine, userID, cuisineID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrCuisineNotFound
+		}
+		return fmt.Errorf("failed to get cuisine: %w", err)
 	}
+
+	// 2. 所有者の確認（ビジネスルール）
+	if !cu.isAuthorizedToDelete(cuisine, userID) {
+		return ErrUnauthorized
+	}
+
+	// 3. 削除の実行
+	if err := cu.cr.DeleteCuisine(userID, cuisineID); err != nil {
+		return fmt.Errorf("failed to delete cuisine: %w", err)
+	}
+
 	return nil
+}
+
+// 所有者確認のためのヘルパーメソッド
+func (cu *cuisineUsecase) isAuthorizedToDelete(cuisine model.Cuisine, userID uint) bool {
+	return cuisine.UserID == userID
 }
 
 func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *string, url string, title string) (model.CuisineResponse, error) {

@@ -31,7 +31,8 @@ func NewRouter(uc controller.IUserController, cc controller.ICuisineController) 
 	// 	return c.JSON(http.StatusOK, "hello world")
 	// })
 
-	e.POST("/signup", uc.SignUp) // エンドポイント追加
+	e.GET("/csrf", uc.CsrfToken)
+	e.POST("/signup", uc.SignUp)
 	e.POST("/login", uc.Login)
 	e.POST("/logout", uc.Logout)
 	// e.PUT("/update", uc.Update)
@@ -39,7 +40,6 @@ func NewRouter(uc controller.IUserController, cc controller.ICuisineController) 
 	// 	SigningKey:  []byte(os.Getenv("SECRET")),
 	// 	TokenLookup: "cookie:token",
 	// }))
-	e.GET("/csrf", uc.CsrfToken)
 
 	u := e.Group("/update")
 	u.Use(echojwt.WithConfig(echojwt.Config{
@@ -55,8 +55,7 @@ func NewRouter(uc controller.IUserController, cc controller.ICuisineController) 
 	}))
 	c.GET("", cc.GetAllCuisines)            // cuisinesのエンドポイントにリクエストがあった場合
 	c.GET("/:cuisineID", cc.GetCuisineByID) // リクエストパラメーターにcuisineIDが入力された場合
-	// c.POST("", cc.CreateCuisine)
-	c.POST("", cc.AddCuisine) // cuisineテーブル追加
+	c.POST("", cc.AddCuisine)               // cuisineテーブル追加
 	// c.PUT("/:cuisineID", cc.UpdateCuisine) // titleしか更新されない
 	c.DELETE("/:cuisineID", cc.DeleteCuisine)
 
