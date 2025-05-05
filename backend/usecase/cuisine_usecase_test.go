@@ -122,8 +122,7 @@ func TestGetCuisineByID(t *testing.T) {
 		Run(func(args mock.Arguments) {
 			cuisine := args.Get(0).(*model.Cuisine)
 			*cuisine = mockCuisine
-		}).
-		Return(mockCuisine, nil)
+		}).Return(nil) // エラーの型を修正
 
 	// テスト実行
 	cuisine, err := usecase.GetCuisineByID(UserID, cuisineID)
