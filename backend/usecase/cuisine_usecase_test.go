@@ -165,14 +165,13 @@ func TestDeleteCuisine(t *testing.T) {
 					ID:     1,
 					UserID: 1,
 				}
-				// GetCuisineByIDの振る舞いを定義
+				// GetCuisineByIDの戻り値を正しく設定
 				mockRepo.On("GetCuisineByID", mock.AnythingOfType("*model.Cuisine"), uint(1), uint(1)).
 					Run(func(args mock.Arguments) {
 						arg := args.Get(0).(*model.Cuisine)
 						*arg = *cuisine
-					}).Return(nil)
+					}).Return(nil) // errorのみを返す
 
-				// DeleteCuisineの振る舞いを定義
 				mockRepo.On("DeleteCuisine", uint(1), uint(1)).Return(nil)
 			},
 			wantErr: nil,
