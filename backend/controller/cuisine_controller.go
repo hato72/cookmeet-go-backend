@@ -11,6 +11,7 @@ import (
 	"backend/model"
 	"backend/usecase"
 	"backend/utils"
+	"errors"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -71,21 +72,27 @@ func (cc *cuisineController) GetCuisineByID(c echo.Context) error {
 func (cc *cuisineController) DeleteCuisine(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	UserID := claims["user_id"]
+	userID := uint(claims["user_id"].(float64)) // userIDに修正
+
 	id := c.Param("cuisineID")
 	cuisineID, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "Invalid cuisine ID")
 	}
 
-	cuisine := model.Cuisine{}
-	if bindErr := c.Bind(&cuisine); bindErr != nil {
-		return c.JSON(http.StatusBadRequest, bindErr.Error())
+	// 不要なBindを削除（DeleteCuisineではリクエストボディは不要）
+
+	if delErr := cc.cu.DeleteCuisine(userID, uint(cuisineID)); delErr != nil {
+		switch {
+		case errors.Is(delErr, usecase.ErrCuisineNotFound):
+			return c.JSON(http.StatusNotFound, delErr.Error())
+		case errors.Is(delErr, usecase.ErrUnauthorized):
+			return c.JSON(http.StatusForbidden, delErr.Error())
+		default:
+			return c.JSON(http.StatusInternalServerError, "Internal server error")
+		}
 	}
 
-	if deleteErr := cc.cu.DeleteCuisine(uint(UserID.(float64)), uint(cuisineID)); deleteErr != nil {
-		return c.JSON(http.StatusInternalServerError, deleteErr.Error())
-	}
 	return c.NoContent(http.StatusNoContent)
 }
 
