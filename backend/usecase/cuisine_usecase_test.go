@@ -3,18 +3,12 @@ package usecase
 import (
 	"backend/model"
 	"backend/validator"
-	"errors"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"gorm.io/gorm"
-)
-
-var (
-	_ErrCuisineNotFound = errors.New("not found")
-	_ErrUnauthorized    = errors.New("unauthorized")
 )
 
 // MockCuisineRepository はCuisineRepositoryのモック
@@ -36,10 +30,7 @@ func (m *MockCuisineRepository) GetAllCuisines(cuisines *[]model.Cuisine, userID
 
 func (m *MockCuisineRepository) GetCuisineByID(cuisine *model.Cuisine, userID uint, cuisineID uint) error {
 	args := m.Called(cuisine, userID, cuisineID)
-	if args.Get(0) != nil {
-		*cuisine = args.Get(0).(model.Cuisine)
-	}
-	return args.Error(1)
+	return args.Error(0)
 }
 
 func (m *MockCuisineRepository) CreateCuisine(cuisine *model.Cuisine) error {
@@ -161,16 +152,12 @@ func TestDeleteCuisine(t *testing.T) {
 			userID:    1,
 			cuisineID: 1,
 			mockSetup: func() {
-				cuisine := &model.Cuisine{
-					ID:     1,
-					UserID: 1,
-				}
-				// GetCuisineByIDの戻り値を正しく設定
 				mockRepo.On("GetCuisineByID", mock.AnythingOfType("*model.Cuisine"), uint(1), uint(1)).
 					Run(func(args mock.Arguments) {
-						arg := args.Get(0).(*model.Cuisine)
-						*arg = *cuisine
-					}).Return(nil) // errorのみを返す
+						cuisine := args.Get(0).(*model.Cuisine)
+						cuisine.ID = 1
+						cuisine.UserID = 1
+					}).Return(nil)
 
 				mockRepo.On("DeleteCuisine", uint(1), uint(1)).Return(nil)
 			},
@@ -184,24 +171,21 @@ func TestDeleteCuisine(t *testing.T) {
 				mockRepo.On("GetCuisineByID", mock.AnythingOfType("*model.Cuisine"), uint(1), uint(999)).
 					Return(gorm.ErrRecordNotFound)
 			},
-			wantErr: _ErrCuisineNotFound,
+			wantErr: ErrCuisineNotFound,
 		},
 		{
 			name:      "権限がない場合",
 			userID:    2,
 			cuisineID: 1,
 			mockSetup: func() {
-				cuisine := &model.Cuisine{
-					ID:     1,
-					UserID: 1, // 別のユーザーのCuisine
-				}
 				mockRepo.On("GetCuisineByID", mock.AnythingOfType("*model.Cuisine"), uint(2), uint(1)).
 					Run(func(args mock.Arguments) {
-						arg := args.Get(0).(*model.Cuisine)
-						*arg = *cuisine
+						cuisine := args.Get(0).(*model.Cuisine)
+						cuisine.ID = 1
+						cuisine.UserID = 1 // 別のユーザーのCuisine
 					}).Return(nil)
 			},
-			wantErr: _ErrUnauthorized,
+			wantErr: ErrUnauthorized,
 		},
 	}
 
