@@ -133,7 +133,7 @@ jobs:
     name: Deploy to Production
     needs: [test]
     runs-on: ubuntu-latest
-    if: ${{ ! failure() }}
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && ! failure()
     
     steps:
     - uses: actions/checkout@v3
