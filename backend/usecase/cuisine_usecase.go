@@ -7,9 +7,11 @@ package usecase
 import (
 	"backend/model"
 	"backend/repository"
+	"backend/utils"
 	"backend/validator"
 	"errors"
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -129,12 +131,22 @@ func (cu *cuisineUsecase) DeleteCuisine(userID uint, cuisineID uint) error {
 		return fmt.Errorf("failed to get cuisine: %w", err)
 	}
 
-	// 2. 所有者の確認（ビジネスルール）
+	// 2. 所有者の確認
 	if !cu.isAuthorizedToDelete(cuisine, userID) {
 		return ErrUnauthorized
 	}
 
-	// 3. 削除の実行
+	// 3. Cloud Storageの写真を削除（IconURLが存在する場合）
+	if cuisine.IconURL != nil && *cuisine.IconURL != "" {
+		// URLからオブジェクト名を抽出
+		objectName := strings.TrimPrefix(*cuisine.IconURL, "https://storage.googleapis.com/cookmeet/")
+		if err := utils.DeleteFromCloudStorage("cookmeet", objectName); err != nil {
+			// 写真の削除に失敗してもデータベースからの削除は続行
+			fmt.Printf("Warning: failed to delete image from Cloud Storage: %v\n", err)
+		}
+	}
+
+	// 4. データベースから料理を削除
 	if err := cu.cr.DeleteCuisine(userID, cuisineID); err != nil {
 		return fmt.Errorf("failed to delete cuisine: %w", err)
 	}
@@ -261,24 +273,6 @@ func (cu *cuisineUsecase) AddCuisine(cuisine model.Cuisine, iconFile *string, ur
 // 		UpdatedAt: updatedCuisine.UpdatedAt,
 // 		UserID:    updatedCuisine.UserID,
 // 	}
-
-// 	// log.Print("updatedCuisine")
-// 	// log.Print("title", updatedCuisine.Title)
-// 	// log.Print("url", updatedCuisine.URL)
-// 	// log.Print("CreatedAt", updatedCuisine.CreatedAt)
-// 	// log.Print("UpdatedAt", updatedCuisine.UpdatedAt)
-
-// 	// log.Print("cuisine")
-// 	// log.Print("title", cuisine.Title)
-// 	// log.Print("url", cuisine.URL)
-// 	// log.Print("CreatedAt", cuisine.CreatedAt)
-// 	// log.Print("UpdatedAt", cuisine.UpdatedAt)
-
-// 	// log.Print("rescuisine")
-// 	// log.Print("title", rescuisine.Title)
-// 	// log.Print("url", rescuisine.URL)
-// 	// log.Print("CreatedAt", rescuisine.CreatedAt)
-// 	// log.Print("UpdatedAt", rescuisine.UpdatedAt)
 
 // 	return rescuisine, nil
 // }

@@ -74,3 +74,24 @@ func generateSignedURL(bucket *storage.BucketHandle, objectName string) (string,
 
 	return url, nil
 }
+
+// DeleteFromCloudStorage は GCS からファイルを削除する
+func DeleteFromCloudStorage(bucketName, objectName string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to create storage client: %v", err)
+	}
+	defer client.Close()
+
+	bucket := client.Bucket(bucketName)
+	obj := bucket.Object(objectName)
+
+	if err := obj.Delete(ctx); err != nil {
+		return fmt.Errorf("failed to delete object: %v", err)
+	}
+
+	return nil
+}
