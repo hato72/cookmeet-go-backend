@@ -14,10 +14,15 @@ func NewRouter(uc controller.IUserController, cc controller.ICuisineController) 
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{ // corsのミドルウェア
 		AllowOrigins: []string{"http://localhost:3000", os.Getenv("FE_URL")}, // デプロイしたときに取得できるドメイン
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, // 許可するヘッダーの一覧
-			echo.HeaderAccessControlAllowHeaders, echo.HeaderXCSRFToken},
-		AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"}, // 許可したいメソッド
-		AllowCredentials: true,                                     // クッキーの送受信を可能にする
+		AllowHeaders: []string{
+			echo.HeaderOrigin,
+			echo.HeaderContentType,
+			echo.HeaderAccept, // 許可するヘッダーの一覧
+			echo.HeaderAuthorization,
+			echo.HeaderAccessControlAllowHeaders,
+			echo.HeaderXCSRFToken},
+		AllowMethods:     []string{"GET", "PUT", "POST", "DELETE", "OPTIONS"}, // 許可したいメソッド
+		AllowCredentials: true,                                                // クッキーの送受信を可能にする
 	}))
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{ // csrfのミドルウェア
 		CookiePath:     "/",
