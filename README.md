@@ -16,14 +16,15 @@
 .env.dev:
 
 PORT=8080
-POSTGRES_USER=
-POSTGRES_PW=
-POSTGRES_DB=
-POSTGRES_PORT=
-POSTGRES_HOST=
+POSTGRES_USER=hato
+POSTGRES_PW=hato72
+POSTGRES_DB=hato
+POSTGRES_PORT=5432
+POSTGRES_HOST=db
+SECRET=uu5pveql
 GO_ENV=dev
-SECRET=<supabaseのJWT　Secretキー>
-FE_URL=https://localhost:3000
+API_DOMAIN=localhost
+FE_URL=http://localhost:3000
 ```
 
 .env.devをbackendディレクトリ直下に配置した後に以下を実行
@@ -46,9 +47,21 @@ docker compose build
 
 docker compose up
 ```
-## テストなしで実行
-コミット時に[Notest]を含める
 
+## test
+```
+make test
+```
+or
+```
+make test-div test=
+```
+
+## lint
+
+```
+make lint
+```
 
 ## メモ
 dbイメージ　postgres latest 
